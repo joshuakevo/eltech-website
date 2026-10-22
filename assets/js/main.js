@@ -1,12 +1,6 @@
 (function () {
   "use strict";
 
-  // Header shadow once the page is scrolled
-  const header = document.getElementById("header");
-  const onScroll = () => header.classList.toggle("scrolled", window.scrollY > 10);
-  document.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
-
   // Mobile menu
   const toggle = document.querySelector(".nav-toggle");
   const nav = document.getElementById("nav");
