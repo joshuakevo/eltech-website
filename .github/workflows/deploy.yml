@@ -1,0 +1,32 @@
+# Every push to main uploads the changed website files to eltech-systems.com (public_html).
+# Only files in this repo are ever uploaded or removed - other folders on the server
+# (sipmart/, raiseroots/, registry/, ...) are never touched.
+name: Deploy website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          server-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            registry/**
+            cgi-bin/**
+            public_ftp/**
+            nc_assets/**
+            parking-page.shtml

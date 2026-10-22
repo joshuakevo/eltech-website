@@ -1,0 +1,14 @@
+# Not part of the website - these live on the server and must never be in this repo
+# (the deploy only uploads what's in the repo, so the server copies stay untouched).
+registry/
+cgi-bin/
+public_ftp/
+LeadPage/
+nc_assets/
+parking-page.shtml
+
+# Local / editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+*.zip
