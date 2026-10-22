@@ -13,11 +13,16 @@
   toggle.addEventListener("click", () => setMenu(!nav.classList.contains("open")));
   nav.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setMenu(false)));
 
-  // "Request a demo" links preselect the matching product in the contact form
-  const interest = document.getElementById("interest");
-  document.querySelectorAll("[data-interest]").forEach((link) => {
-    link.addEventListener("click", () => { interest.value = link.dataset.interest; });
-  });
+  // Links that preselect an option in a form: "Request a demo" (product) and "Register interest" (course)
+  const preselect = (attr, selectId) => {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    document.querySelectorAll("[" + attr + "]").forEach((link) => {
+      link.addEventListener("click", () => { select.value = link.getAttribute(attr); });
+    });
+  };
+  preselect("data-interest", "interest");
+  preselect("data-course", "course");
 
   document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -28,7 +33,7 @@
   if (offerOn) {
     document.querySelectorAll("[data-offer]").forEach((el) => { el.hidden = false; });
     const offerBar = document.getElementById("offer-bar");
-    offerBar.querySelector(".offer-close").addEventListener("click", () => { offerBar.hidden = true; });
+    if (offerBar) offerBar.querySelector(".offer-close").addEventListener("click", () => { offerBar.hidden = true; });
   }
 
   // Prices: show the price (with the offer if it is on) and the monthly installment
@@ -85,7 +90,7 @@
     modal.addEventListener("click", (e) => { if (e.target === modal) modal.close(); });
   }
 
-  // WhatsApp nudge: shown once per visit, after 20 seconds or once the visitor reaches the services
+  // WhatsApp nudge: shown once per visit, after 20 seconds or once the visitor is a third of the way down
   const bubble = document.getElementById("wa-bubble");
   const storage = {
     get(key) { try { return sessionStorage.getItem(key); } catch (e) { return null; } },
@@ -100,9 +105,8 @@
       storage.set("waNudge", "1");
     };
     const timer = setTimeout(showBubble, 20000);
-    const services = document.getElementById("services");
     const onDeepScroll = () => {
-      if (services.getBoundingClientRect().top < window.innerHeight * 0.5) {
+      if (window.scrollY > (document.documentElement.scrollHeight - window.innerHeight) / 3) {
         showBubble();
         document.removeEventListener("scroll", onDeepScroll);
       }
@@ -142,9 +146,7 @@
         if (missing && !firstInvalid) firstInvalid = oneOf[0];
       }
       if (firstInvalid) {
-        showStatus(oneOf.length
-          ? "Please add your name, an email or phone number, and your idea."
-          : "Please fill in your name, email or phone, and a message.", false);
+        showStatus(form.dataset.invalidMessage || "Please fill in your name, email or phone, and a message.", false);
         firstInvalid.focus();
         return;
       }

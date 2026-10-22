@@ -2,9 +2,10 @@
 /**
  * Form handler for eltech-systems.com.
  *
- * Handles two forms:
- *  - "contact": the Book a demo / contact form   -> info@eltech-systems.com
- *  - "project": the Start a project pop-up       -> kavinyia@gmail.com
+ * Handles three forms:
+ *  - "contact": the Book a demo / contact form    -> info@eltech-systems.com
+ *  - "project": the Start a project pop-up        -> kavinyia@gmail.com
+ *  - "course":  the AI course form on learn.html  -> kavinyia@gmail.com
  *
  * Uses PHP's built-in mail(), so no SMTP password is needed. Do NOT put any
  * credentials in this file: this repository is public.
@@ -18,6 +19,7 @@ $from = 'info@eltech-systems.com'; // must be an address on our own domain
 $recipients = [
     'contact' => 'info@eltech-systems.com',
     'project' => 'kavinyia@gmail.com',
+    'course'  => 'kavinyia@gmail.com',
 ];
 
 $isAjax = ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'fetch';
@@ -70,21 +72,17 @@ if (!empty($_POST['website'])) {
     respond(true, 'Thank you. We will get back to you soon.', $isAjax);
 }
 
-$formType = ($_POST['form'] ?? '') === 'project' ? 'project' : 'contact';
+$formType = $_POST['form'] ?? '';
+if (!isset($recipients[$formType])) {
+    $formType = 'contact';
+}
 $name     = clean_line($_POST['name'] ?? '');
 $message  = mb_substr(trim((string) ($_POST['message'] ?? '')), 0, 5000);
 
-if ($formType === 'project') {
-    $email    = clean_line($_POST['email'] ?? '');
-    $phone    = clean_line($_POST['phone'] ?? '', 20);
-    $type     = pick($_POST['type'] ?? '', ['Business system', 'Web app', 'Mobile app', 'Automation', 'Integration', 'Not sure yet'], 'Not sure yet');
-    $timeline = pick($_POST['timeline'] ?? '', ['As soon as possible', 'In 1 to 3 months', 'In 3 to 6 months', 'Just exploring'], 'Not given');
-    $budget   = pick($_POST['budget'] ?? '', ['Not sure yet', 'Under UGX 5 million', 'UGX 5 to 20 million', 'UGX 20 to 50 million', 'Over UGX 50 million'], 'Not given');
-
-    if ($name === '' || $message === '' || ($email === '' && $phone === '')) {
-        http_response_code(422);
-        respond(false, 'Please add your name, an email or phone number, and your idea.', $isAjax);
-    }
+// The project and course forms ask for email and/or phone separately
+$email = clean_line($_POST['email'] ?? '');
+$phone = clean_line($_POST['phone'] ?? '', 20);
+if ($formType !== 'contact') {
     if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         http_response_code(422);
         respond(false, 'Please check your email address.', $isAjax);
@@ -92,6 +90,37 @@ if ($formType === 'project') {
     if ($phone !== '' && !valid_phone($phone)) {
         http_response_code(422);
         respond(false, 'Please check your phone number.', $isAjax);
+    }
+}
+
+if ($formType === 'course') {
+    $course = pick($_POST['course'] ?? '', ['AI Beyond ChatGPT', 'Automate Your Business with AI', 'Data Analysis with AI', 'AI for Marketing and Content', 'AI for Managers and Teams', 'Build Apps with AI', 'Not sure, please advise me'], 'Not sure, please advise me');
+    $who    = pick($_POST['who'] ?? '', ['Just me', 'My team'], 'Not given');
+
+    if ($name === '' || ($email === '' && $phone === '')) {
+        http_response_code(422);
+        respond(false, 'Please add your name and an email or phone number.', $isAjax);
+    }
+
+    $replyTo = $email;
+    $subject = "AI course interest: $course from $name";
+    $body = "New AI course registration from the website\n"
+          . "-------------------------------------------\n"
+          . "Name:    $name\n"
+          . "Email:   " . ($email ?: '-') . "\n"
+          . "Phone:   " . ($phone ?: '-') . "\n"
+          . "Course:  $course\n"
+          . "For:     $who\n\n"
+          . "Notes:\n" . ($message ?: '-') . "\n";
+    $thanks = 'Thank you. We will send you the next dates and fees within one working day.';
+} elseif ($formType === 'project') {
+    $type     = pick($_POST['type'] ?? '', ['Business system', 'Web app', 'Mobile app', 'Automation', 'Integration', 'Not sure yet'], 'Not sure yet');
+    $timeline = pick($_POST['timeline'] ?? '', ['As soon as possible', 'In 1 to 3 months', 'In 3 to 6 months', 'Just exploring'], 'Not given');
+    $budget   = pick($_POST['budget'] ?? '', ['Not sure yet', 'Under UGX 5 million', 'UGX 5 to 20 million', 'UGX 20 to 50 million', 'Over UGX 50 million'], 'Not given');
+
+    if ($name === '' || $message === '' || ($email === '' && $phone === '')) {
+        http_response_code(422);
+        respond(false, 'Please add your name, an email or phone number, and your idea.', $isAjax);
     }
 
     $replyTo = $email;

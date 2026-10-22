@@ -93,7 +93,7 @@
         <a href="#products">Products</a>
         <a href="#pricing">Pricing</a>
         <a href="#services">Services</a>
-        <a href="#ai">AI</a>
+        <a href="learn.html">Learn AI</a>
         <a href="#contact">Contact</a>
         <a href="#contact" class="btn btn-primary btn-sm">Book a demo</a>
       </nav>
@@ -121,10 +121,14 @@
         </div>
 
         <div class="hero-visual">
-          <img class="hero-screen" src="assets/img/finance-dashboard.svg" width="800" height="520"
-               alt="Eltech Finance dashboard showing loan portfolio, savings, repayments and a loan schedule">
+          <img class="hero-photo" src="assets/img/hero-woman.webp" width="900" height="1000" fetchpriority="high"
+               alt="Smiling business owner working on her laptop">
           <img class="hero-phone" src="assets/img/pos-phone.svg" width="300" height="600"
                alt="Eltech POS on a phone, completing a sale while offline">
+          <div class="hero-chip">
+            <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+            <span><strong>Less paperwork</strong><br>More time for customers</span>
+          </div>
         </div>
       </div>
     </section>
@@ -174,8 +178,8 @@
             </div>
           </div>
           <div class="product-media">
-            <img src="assets/img/finance-reports.svg" width="640" height="440" loading="lazy"
-                 alt="Eltech Finance balance sheet showing assets, member savings, fixed deposits and shares">
+            <img src="assets/img/finance-dashboard.svg" width="800" height="520" loading="lazy"
+                 alt="Eltech Finance dashboard showing loan portfolio, savings, repayments and a loan schedule">
           </div>
         </article>
 
@@ -366,6 +370,14 @@
             <p>We automate tasks like data entry and follow-ups.</p>
           </div>
         </div>
+
+        <div class="learn-teaser reveal">
+          <div>
+            <h3>Want to use AI yourself?</h3>
+            <p>Our practical courses take you beyond ChatGPT: automate your work, analyse your data and more.</p>
+          </div>
+          <a href="learn.html" class="btn btn-light">Explore AI courses <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </div>
       </div>
     </section>
 
@@ -505,6 +517,7 @@
           <li><a href="#products" data-interest="Eltech Finance">Eltech Finance</a></li>
           <li><a href="#products" data-interest="Eltech POS">Eltech POS</a></li>
           <li><a href="#contact" data-open-project>Custom software</a></li>
+          <li><a href="learn.html">AI courses</a></li>
         </ul>
       </div>
       <div>
@@ -529,7 +542,7 @@
       <h2 id="project-title">Tell us your idea</h2>
       <p class="modal-intro">A few details are enough. We will get back to you within one working day.</p>
 
-      <form class="js-form" action="forms/contact.php" method="post" novalidate data-one-of="p-email,p-phone">
+      <form class="js-form" action="forms/contact.php" method="post" novalidate data-one-of="p-email,p-phone" data-invalid-message="Please add your name, an email or phone number, and your idea.">
         <input type="hidden" name="form" value="project">
         <div class="field">
           <label for="p-name">Name</label>
