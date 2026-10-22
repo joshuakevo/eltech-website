@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" font-family="Inter, 'Segoe UI', Arial, sans-serif">
+  <rect x="0.5" y="0.5" width="799" height="519" rx="14" fill="#fff" stroke="#dbe2ec"/>
+  <!-- Window bar -->
+  <path d="M14 .5h772a13.5 13.5 0 0 1 13.5 13.5v22H.5V14A13.5 13.5 0 0 1 14 .5z" fill="#f1f4f8"/>
+  <circle cx="20" cy="18" r="5" fill="#f87171"/><circle cx="36" cy="18" r="5" fill="#fbbf24"/><circle cx="52" cy="18" r="5" fill="#34d399"/>
+  <rect x="300" y="9" width="200" height="18" rx="9" fill="#fff"/>
+  <text x="400" y="22" font-size="10" fill="#5b6270" text-anchor="middle">Eltech Finance</text>
+  <!-- Sidebar -->
+  <path d="M.5 36h160v483H14A13.5 13.5 0 0 1 .5 506z" fill="#0f2444"/>
+  <text x="20" y="68" font-size="14" font-weight="700" fill="#fff">Eltech Finance</text>
+  <rect x="12" y="88" width="136" height="30" rx="7" fill="#1565c0"/>
+  <g font-size="12" fill="#b8c4d6">
+    <text x="24" y="108" fill="#fff" font-weight="600">Dashboard</text>
+    <text x="24" y="146">Loans</text>
+    <text x="24" y="184">Savings</text>
+    <text x="24" y="222">Shares</text>
+    <text x="24" y="260">Accounting</text>
+    <text x="24" y="298">Payroll</text>
+    <text x="24" y="336">Reports</text>
+  </g>
+  <!-- Header -->
+  <text x="184" y="74" font-size="18" font-weight="700" fill="#0f2444">Dashboard</text>
+  <rect x="660" y="56" width="116" height="24" rx="12" fill="#e8f0fb"/>
+  <text x="718" y="72" font-size="11" font-weight="600" fill="#1565c0" text-anchor="middle">Kampala branch</text>
+  <!-- KPI cards -->
+  <g>
+    <rect x="184.5" y="96.5" width="184" height="84" rx="10" fill="#fff" stroke="#e3e8ef"/>
+    <text x="200" y="122" font-size="11" fill="#5b6270">Loan portfolio</text>
+    <text x="200" y="150" font-size="20" font-weight="700" fill="#0f2444">UGX 482.6M</text>
+    <text x="200" y="168" font-size="10" fill="#157347">▲ 4.2% this month</text>
+
+    <rect x="388.5" y="96.5" width="184" height="84" rx="10" fill="#fff" stroke="#e3e8ef"/>
+    <text x="404" y="122" font-size="11" fill="#5b6270">Savings &amp; deposits</text>
+    <text x="404" y="150" font-size="20" font-weight="700" fill="#0f2444">UGX 215.3M</text>
+    <text x="404" y="168" font-size="10" fill="#157347">▲ 2.8% this month</text>
+
+    <rect x="592.5" y="96.5" width="184" height="84" rx="10" fill="#fff" stroke="#e3e8ef"/>
+    <text x="608" y="122" font-size="11" fill="#5b6270">Repayments due today</text>
+    <text x="608" y="150" font-size="20" font-weight="700" fill="#0f2444">37</text>
+    <text x="608" y="168" font-size="10" fill="#5b6270">UGX 12.4M expected</text>
+  </g>
+  <!-- Chart -->
+  <rect x="184.5" y="196.5" width="288" height="300" rx="10" fill="#fff" stroke="#e3e8ef"/>
+  <text x="200" y="224" font-size="13" font-weight="600" fill="#0f2444">Repayments collected</text>
+  <text x="200" y="240" font-size="10" fill="#5b6270">Last 6 months</text>
+  <g stroke="#eef2f7"><line x1="200" y1="280" x2="456" y2="280"/><line x1="200" y1="340" x2="456" y2="340"/><line x1="200" y1="400" x2="456" y2="400"/><line x1="200" y1="460" x2="456" y2="460"/></g>
+  <g fill="#bfd4f2">
+    <rect x="212" y="340" width="26" height="120" rx="4"/>
+    <rect x="252" y="310" width="26" height="150" rx="4"/>
+    <rect x="292" y="325" width="26" height="135" rx="4"/>
+    <rect x="332" y="285" width="26" height="175" rx="4"/>
+    <rect x="372" y="270" width="26" height="190" rx="4"/>
+    <rect x="412" y="240" width="26" height="220" rx="4" fill="#1565c0"/>
+  </g>
+  <g font-size="10" fill="#5b6270" text-anchor="middle">
+    <text x="225" y="478">May</text><text x="265" y="478">Jun</text><text x="305" y="478">Jul</text>
+    <text x="345" y="478">Aug</text><text x="385" y="478">Sep</text><text x="425" y="478">Oct</text>
+  </g>
+  <!-- Loan schedule -->
+  <rect x="488.5" y="196.5" width="288" height="300" rx="10" fill="#fff" stroke="#e3e8ef"/>
+  <text x="504" y="224" font-size="13" font-weight="600" fill="#0f2444">Loan schedule</text>
+  <text x="504" y="240" font-size="10" fill="#5b6270">Loan L-1042 · 12 months</text>
+  <g font-size="10" fill="#5b6270"><text x="504" y="264">#</text><text x="526" y="264">Due</text><text x="596" y="264">Amount</text><text x="700" y="264">Status</text></g>
+  <line x1="504" y1="272" x2="760" y2="272" stroke="#e3e8ef"/>
+  <g font-size="11" fill="#2b2f36">
+    <text x="504" y="296">1</text><text x="526" y="296">05 Jun</text><text x="596" y="296">281,000</text>
+    <text x="504" y="330">2</text><text x="526" y="330">05 Jul</text><text x="596" y="330">281,000</text>
+    <text x="504" y="364">3</text><text x="526" y="364">05 Aug</text><text x="596" y="364">281,000</text>
+    <text x="504" y="398">4</text><text x="526" y="398">05 Sep</text><text x="596" y="398">290,500</text>
+    <text x="504" y="432">5</text><text x="526" y="432">05 Oct</text><text x="596" y="432">281,000</text>
+    <text x="504" y="466">6</text><text x="526" y="466">05 Nov</text><text x="596" y="466">281,000</text>
+  </g>
+  <g font-size="9" font-weight="600" text-anchor="middle">
+    <rect x="696" y="284" width="64" height="18" rx="9" fill="#e7f6ee"/><text x="728" y="296" fill="#157347">Paid</text>
+    <rect x="696" y="318" width="64" height="18" rx="9" fill="#e7f6ee"/><text x="728" y="330" fill="#157347">Paid</text>
+    <rect x="696" y="352" width="64" height="18" rx="9" fill="#e7f6ee"/><text x="728" y="364" fill="#157347">Paid</text>
+    <rect x="696" y="386" width="64" height="18" rx="9" fill="#fff4e5"/><text x="728" y="398" fill="#92400e">Penalty</text>
+    <rect x="696" y="420" width="64" height="18" rx="9" fill="#e8f0fb"/><text x="728" y="432" fill="#1565c0">Due</text>
+    <rect x="696" y="454" width="64" height="18" rx="9" fill="#f1f4f8"/><text x="728" y="466" fill="#5b6270">Upcoming</text>
+  </g>
+</svg>
