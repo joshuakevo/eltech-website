@@ -380,6 +380,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   font-size: .78rem; font-weight: 600; color: var(--blue);
   background: var(--tint); padding: .3rem .7rem; border-radius: 999px;
 }
+.level-live { background: #e7f6ee; color: #157347; }
 .course h3 { font-size: 1.3rem; }
 .course-lead { color: var(--muted); }
 .course .checks { margin-bottom: 1.5rem; }
