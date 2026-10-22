@@ -21,6 +21,39 @@
 
   document.getElementById("year").textContent = new Date().getFullYear();
 
+  // Christmas offer: shows itself only between these dates (Kampala time)
+  const OFFER = { start: "2026-12-01T00:00:00+03:00", end: "2027-01-01T00:00:00+03:00", discount: 0.2 };
+  const now = new Date();
+  const offerOn = now >= new Date(OFFER.start) && now < new Date(OFFER.end);
+  if (offerOn) {
+    document.querySelectorAll("[data-offer]").forEach((el) => { el.hidden = false; });
+    const offerBar = document.getElementById("offer-bar");
+    offerBar.querySelector(".offer-close").addEventListener("click", () => { offerBar.hidden = true; });
+  }
+
+  // Prices: show the price (with the offer if it is on) and the monthly installment
+  const DEPOSIT = 0.3, MONTHS = 6;
+  const ugx = (n) => "UGX " + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  document.querySelectorAll("[data-price]").forEach((card) => {
+    const nowEl = card.querySelector(".price-now");
+    const monthlyEl = card.querySelector(".price-monthly");
+    const price = Number(card.dataset.price);
+    if (!price) {
+      nowEl.innerHTML = '<span class="price-todo">UGX [price]</span>';
+      monthlyEl.textContent = "UGX [...]";
+      return;
+    }
+    const finalPrice = offerOn ? price * (1 - OFFER.discount) : price;
+    if (offerOn) {
+      const oldEl = card.querySelector(".price-old");
+      oldEl.textContent = ugx(price);
+      oldEl.hidden = false;
+    }
+    nowEl.textContent = ugx(finalPrice);
+    // Rounded up to the nearest 1,000 shillings
+    monthlyEl.textContent = ugx(Math.ceil(finalPrice * (1 - DEPOSIT) / MONTHS / 1000) * 1000);
+  });
+
   // Fade sections in as they scroll into view
   const reveals = document.querySelectorAll(".reveal");
   if ("IntersectionObserver" in window) {

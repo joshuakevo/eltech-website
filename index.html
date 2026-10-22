@@ -57,6 +57,13 @@
 
   <a class="skip-link" href="#main">Skip to content</a>
 
+  <div class="offer-bar" id="offer-bar" data-offer hidden>
+    <div class="container offer-bar-inner">
+      <p><i class="bi bi-gift" aria-hidden="true"></i> <strong>Christmas offer:</strong> 20% off all our systems this December. <a href="#pricing">See prices</a></p>
+      <button type="button" class="offer-close" aria-label="Close offer"><i class="bi bi-x" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
   <div class="topbar">
     <div class="container topbar-inner">
       <ul>
@@ -84,6 +91,7 @@
 
       <nav class="nav" id="nav" aria-label="Main">
         <a href="#products">Products</a>
+        <a href="#pricing">Pricing</a>
         <a href="#services">Services</a>
         <a href="#ai">AI</a>
         <a href="#contact">Contact</a>
@@ -196,8 +204,76 @@
       </div>
     </section>
 
+    <!-- Pricing -->
+    <section class="section" id="pricing">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="kicker">Pricing</p>
+          <h2>Clear prices. Flexible payments.</h2>
+          <p>Start with a 30% deposit and spread the rest over 3 to 6 months. Your final price depends on what you need, and we agree it with you first.</p>
+        </div>
+
+        <div class="prices">
+          <article class="price-card reveal" data-price="500000">
+            <span class="offer-badge" data-offer hidden>Christmas &minus;20%</span>
+            <div class="product-icon"><i class="bi bi-bank" aria-hidden="true"></i></div>
+            <h3>Eltech Finance</h3>
+            <p class="price-for">For SACCOs, microfinance and money lenders</p>
+            <p class="price"><span class="price-from">From</span> <s class="price-old" hidden></s> <span class="price-now"></span></p>
+            <p class="price-plan">or 30% deposit, then 6 monthly payments of <strong class="price-monthly"></strong></p>
+            <ul class="checks">
+              <li>Tailored to your loan products, charges and reports</li>
+              <li>Setup and staff training</li>
+              <li>Installable phone app</li>
+              <li>Local support in Kampala</li>
+            </ul>
+            <a href="#contact" class="btn btn-primary" data-interest="Eltech Finance">Get my price</a>
+          </article>
+
+          <article class="price-card price-card-featured reveal" data-price="500000">
+            <span class="offer-badge" data-offer hidden>Christmas &minus;20%</span>
+            <div class="product-icon"><i class="bi bi-shop" aria-hidden="true"></i></div>
+            <h3>Eltech POS</h3>
+            <p class="price-for">For supermarkets, pharmacies, shops and restaurants</p>
+            <p class="price"><span class="price-from">From</span> <s class="price-old" hidden></s> <span class="price-now"></span></p>
+            <p class="price-plan">or 30% deposit, then 6 monthly payments of <strong class="price-monthly"></strong></p>
+            <ul class="checks">
+              <li>Tailored to your products and prices</li>
+              <li>Setup and staff training</li>
+              <li>Works offline</li>
+              <li>Local support in Kampala</li>
+            </ul>
+            <a href="#contact" class="btn btn-primary" data-interest="Eltech POS">Get my price</a>
+          </article>
+
+          <article class="price-card reveal" data-price="500000">
+            <span class="offer-badge" data-offer hidden>Christmas &minus;20%</span>
+            <div class="product-icon"><i class="bi bi-code-slash" aria-hidden="true"></i></div>
+            <h3>Custom software</h3>
+            <p class="price-for">Systems, web and mobile apps built for you</p>
+            <p class="price"><span class="price-from">From</span> <s class="price-old" hidden></s> <span class="price-now"></span></p>
+            <p class="price-plan">or 30% deposit, then 6 monthly payments of <strong class="price-monthly"></strong></p>
+            <ul class="checks">
+              <li>We plan it with you first</li>
+              <li>Built around your processes</li>
+              <li>Integrations such as mobile money</li>
+              <li>Support after launch</li>
+            </ul>
+            <a href="#contact" class="btn btn-primary" data-open-project>Get my price</a>
+          </article>
+        </div>
+
+        <ul class="pay-perks reveal">
+          <li><i class="bi bi-calendar-check" aria-hidden="true"></i><div><strong>Pay in installments</strong><span>30% deposit, the rest over 3 to 6 months</span></div></li>
+          <li><i class="bi bi-phone" aria-hidden="true"></i><div><strong>Mobile money or bank</strong><span>Pay the way that suits you</span></div></li>
+          <li><i class="bi bi-eye" aria-hidden="true"></i><div><strong>See it first</strong><span>Get a demo before you pay anything</span></div></li>
+          <li><i class="bi bi-sliders" aria-hidden="true"></i><div><strong>Pay for what you need</strong><span>Your price matches your size and needs</span></div></li>
+        </ul>
+      </div>
+    </section>
+
     <!-- How it works -->
-    <section class="section" id="how">
+    <section class="section section-alt" id="how">
       <div class="container">
         <div class="section-head reveal">
           <p class="kicker">How it works</p>
@@ -225,7 +301,7 @@
     </section>
 
     <!-- Services -->
-    <section class="section section-alt" id="services">
+    <section class="section" id="services">
       <div class="container split">
         <div class="reveal">
           <div class="section-head">
@@ -327,6 +403,10 @@
           <details>
             <summary>Can I see the system before I decide?</summary>
             <p>Yes. Book a demo and we will walk you through it using examples from your business.</p>
+          </details>
+          <details>
+            <summary>Can I pay in installments?</summary>
+            <p>Yes. Pay a 30% deposit to start, then spread the rest over 3 to 6 months by mobile money or bank.</p>
           </details>
           <details>
             <summary>Does Eltech POS work without internet?</summary>
