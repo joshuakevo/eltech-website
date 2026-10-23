@@ -46,13 +46,17 @@ page_start($course['title'], $user);
         <h1><?= h($course['title']) ?></h1>
         <p class="lead"><?= h($course['description']) ?></p>
         <div class="head-actions">
-          <?php if ($next): ?>
+          <?php if ($next && !$done && $course['intro']): ?>
+            <a class="btn btn-primary" href="lesson.php?c=<?= h($course['slug']) ?>&amp;l=intro">
+              Start the course <i class="bi bi-arrow-right" aria-hidden="true"></i>
+            </a>
+          <?php elseif ($next): ?>
             <a class="btn btn-primary" href="lesson.php?c=<?= h($course['slug']) ?>&amp;l=<?= h($next['slug']) ?>">
               <?= $done ? 'Continue: ' . h($next['title']) : 'Start lesson 1' ?> <i class="bi bi-arrow-right" aria-hidden="true"></i>
             </a>
           <?php endif; ?>
-          <?php if (!empty($course['intro'])): ?>
-            <button type="button" class="btn btn-ghost" data-open-video><i class="bi bi-play-circle-fill" aria-hidden="true"></i> Watch the intro (45s)</button>
+          <?php if ($course['intro']): ?>
+            <a class="btn btn-ghost" href="lesson.php?c=<?= h($course['slug']) ?>&amp;l=intro"><i class="bi bi-play-circle-fill" aria-hidden="true"></i> Watch the intro (45s)</a>
           <?php endif; ?>
         </div>
       </div>
@@ -64,15 +68,6 @@ page_start($course['title'], $user);
     </div>
   </div>
 </section>
-
-<?php if (!empty($course['intro'])): ?>
-<dialog class="modal video-modal" id="video-modal" aria-label="Course intro video">
-  <button type="button" class="modal-close" aria-label="Close" data-close-video><i class="bi bi-x-lg" aria-hidden="true"></i></button>
-  <video controls playsinline preload="none" poster="../assets/video/<?= h($course['intro']) ?>.jpg">
-    <source src="../assets/video/<?= h($course['intro']) ?>.mp4" type="video/mp4">
-  </video>
-</dialog>
-<?php endif; ?>
 
 <section class="section-tight">
   <div class="container course-body">
@@ -87,6 +82,15 @@ page_start($course['title'], $user);
 
       <h2>Lessons</h2>
       <ol class="lesson-list">
+        <?php if ($course['intro']): ?>
+          <li class="lesson-item is-intro">
+            <span class="lesson-num"><i class="bi bi-play-fill" aria-hidden="true"></i></span>
+            <div class="lesson-info">
+              <a href="lesson.php?c=<?= h($course['slug']) ?>&amp;l=intro">Introduction: what you will achieve</a>
+              <span class="lesson-meta">45 sec video &middot; <span class="tag-free">Free</span> &middot; optional</span>
+            </div>
+          </li>
+        <?php endif; ?>
         <?php foreach ($course['lessons'] as $i => $lesson):
             $state = $states[$lesson['slug']];
             $sub = $submissions[$lesson['slug']] ?? null; ?>

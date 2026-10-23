@@ -5,15 +5,92 @@ require __DIR__ . '/lib/layout.php';
 $user = require_user();
 $userId = (int) $user['id'];
 $course = load_course((string) ($_GET['c'] ?? ''));
-$index = $course ? find_lesson($course, (string) ($_GET['l'] ?? '')) : null;
-if ($index === null) {
+$requested = (string) ($_GET['l'] ?? '');
+$isIntro = $course && $requested === 'intro' && $course['intro'];
+$index = $course && !$isIntro ? find_lesson($course, $requested) : null;
+if (!$isIntro && $index === null) {
     flash('That lesson could not be found.');
     redirect($course ? 'course.php?c=' . $course['slug'] : 'index.php');
 }
 
-$lesson = $course['lessons'][$index];
 $progress = course_progress($userId, $course['slug']);
 $states = lesson_states($course, $progress, has_access($userId, $course['slug']));
+$base = 'lesson.php?c=' . rawurlencode($course['slug']) . '&l=';
+
+/** Left-hand lesson list; $current is a lesson slug or 'intro'. */
+function side_list(array $course, array $states, string $base, string $current): void
+{
+    ?>
+    <a class="back-link" href="course.php?c=<?= h($course['slug']) ?>"><i class="bi bi-arrow-left" aria-hidden="true"></i> <?= h($course['title']) ?></a>
+    <ol class="side-list">
+      <?php if ($course['intro']): ?>
+        <li class="is-open<?= $current === 'intro' ? ' is-current' : '' ?>">
+          <span class="side-icon"><i class="bi bi-play-circle" aria-hidden="true"></i></span>
+          <a href="<?= h($base . 'intro') ?>"<?= $current === 'intro' ? ' aria-current="page"' : '' ?>>Introduction</a>
+        </li>
+      <?php endif; ?>
+      <?php foreach ($course['lessons'] as $l):
+          $s = $states[$l['slug']]; ?>
+        <li class="is-<?= $s ?><?= $l['slug'] === $current ? ' is-current' : '' ?>">
+          <span class="side-icon"><i class="bi <?= $s === 'done' ? 'bi-check-circle-fill' : ($s === 'open' ? 'bi-circle' : ($s === 'paid' ? 'bi-gem' : 'bi-lock')) ?>" aria-hidden="true"></i></span>
+          <?php if ($s === 'done' || $s === 'open'): ?>
+            <a href="<?= h($base . rawurlencode($l['slug'])) ?>"<?= $l['slug'] === $current ? ' aria-current="page"' : '' ?>><?= h($l['title']) ?></a>
+          <?php else: ?>
+            <span><?= h($l['title']) ?></span>
+          <?php endif; ?>
+        </li>
+      <?php endforeach; ?>
+    </ol>
+    <?php
+}
+
+/* ---------- Introduction: the course video, played inside the course ---------- */
+if ($isIntro) {
+    record_activity($userId);
+    $first = $base . rawurlencode($course['lessons'][0]['slug']);
+    page_start('Introduction: ' . $course['title'], $user);
+    ?>
+    <div class="container lesson-layout">
+      <aside class="lesson-side"><?php side_list($course, $states, $base, 'intro'); ?></aside>
+
+      <article class="lesson">
+        <p class="lesson-kicker">Introduction &middot; 45 seconds</p>
+        <h1>Welcome to <?= h($course['title']) ?></h1>
+        <p class="lesson-summary">See what you will achieve in this course, or skip straight to lesson 1.</p>
+
+        <div class="intro-player">
+          <video controls playsinline preload="metadata" poster="../assets/video/<?= h($course['intro']) ?>.jpg">
+            <source src="../assets/video/<?= h($course['intro']) ?>.mp4" type="video/mp4">
+          </video>
+          <a class="skip-intro" href="<?= h($first) ?>">Skip intro <i class="bi bi-skip-forward-fill" aria-hidden="true"></i></a>
+          <div class="intro-end">
+            <p>Ready? Your first lesson takes about <?= (int) $course['lessons'][0]['minutes'] ?> minutes.</p>
+            <a class="btn btn-primary" href="<?= h($first) ?>">Start lesson 1 <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+            <button type="button" class="btn btn-ghost" data-replay><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Watch again</button>
+          </div>
+        </div>
+
+        <div class="takeaways">
+          <h2><i class="bi bi-flag" aria-hidden="true"></i> By the end of this course you will be able to</h2>
+          <ul class="checks">
+            <?php foreach ($course['outcomes'] as $outcome): ?>
+              <li><?= h($outcome) ?></li>
+            <?php endforeach; ?>
+          </ul>
+        </div>
+
+        <nav class="lesson-nav" aria-label="Lesson navigation">
+          <a class="btn btn-outline" href="course.php?c=<?= h($course['slug']) ?>"><i class="bi bi-arrow-left" aria-hidden="true"></i> Course overview</a>
+          <a class="btn btn-primary" href="<?= h($first) ?>">Start lesson 1 <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </nav>
+      </article>
+    </div>
+    <?php
+    page_end();
+    exit;
+}
+
+$lesson = $course['lessons'][$index];
 $state = $states[$lesson['slug']];
 
 if ($state === 'paid') {
@@ -29,31 +106,15 @@ record_activity($userId);
 $row = $progress[$lesson['slug']] ?? null;
 $submission = course_submissions($userId, $course['slug'])[$lesson['slug']] ?? null;
 $total = count($course['lessons']);
-$prev = $course['lessons'][$index - 1] ?? null;
+$prev = $course['lessons'][$index - 1] ?? ($course['intro'] ? ['slug' => 'intro', 'title' => 'Introduction'] : null);
 $next = $course['lessons'][$index + 1] ?? null;
-$base = 'lesson.php?c=' . rawurlencode($course['slug']) . '&l=';
 
 page_start($lesson['title'], $user);
 ?>
 <div class="lesson-progress" aria-hidden="true"><span style="width: <?= round(($index + ($state === 'done' ? 1 : 0)) / $total * 100) ?>%"></span></div>
 
 <div class="container lesson-layout">
-  <aside class="lesson-side">
-    <a class="back-link" href="course.php?c=<?= h($course['slug']) ?>"><i class="bi bi-arrow-left" aria-hidden="true"></i> <?= h($course['title']) ?></a>
-    <ol class="side-list">
-      <?php foreach ($course['lessons'] as $i => $l):
-          $s = $states[$l['slug']]; ?>
-        <li class="is-<?= $s ?><?= $i === $index ? ' is-current' : '' ?>">
-          <span class="side-icon"><i class="bi <?= $s === 'done' ? 'bi-check-circle-fill' : ($s === 'open' ? 'bi-circle' : ($s === 'paid' ? 'bi-gem' : 'bi-lock')) ?>" aria-hidden="true"></i></span>
-          <?php if ($s === 'done' || $s === 'open'): ?>
-            <a href="<?= h($base . rawurlencode($l['slug'])) ?>"<?= $i === $index ? ' aria-current="page"' : '' ?>><?= h($l['title']) ?></a>
-          <?php else: ?>
-            <span><?= h($l['title']) ?></span>
-          <?php endif; ?>
-        </li>
-      <?php endforeach; ?>
-    </ol>
-  </aside>
+  <aside class="lesson-side"><?php side_list($course, $states, $base, $lesson['slug']); ?></aside>
 
   <article class="lesson">
     <p class="lesson-kicker">Lesson <?= $index + 1 ?> of <?= $total ?> &middot; <?= (int) $lesson['minutes'] ?> min</p>
