@@ -21,6 +21,7 @@ function page_start(string $title, ?array $user, array $opts = []): void
   <meta property="og:title" content="<?= h($title) ?> | Eltech Academy">
   <meta property="og:description" content="<?= h($description) ?>">
   <meta property="og:image" content="https://eltech-systems.com/assets/img/learn-ai.webp">
+  <link href="../favicon.ico" rel="icon" sizes="any">
   <link href="../assets/img/favicon.png" rel="icon" type="image/png">
   <link href="../assets/img/apple-touch-icon.png" rel="apple-touch-icon">
   <link href="https://fonts.googleapis.com" rel="preconnect">
