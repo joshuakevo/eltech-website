@@ -2,6 +2,7 @@
 /**
  * Course catalogue. Live courses have their lessons in academy/content/<slug>.php.
  * To launch another course: write its content file, then set 'status' => 'live'.
+ * 'price' is the full-course price in UGX (the first lessons are always free).
  */
 
 function course_catalog(): array
@@ -13,6 +14,7 @@ function course_catalog(): array
             'level' => 'Beginner',
             'icon' => 'bi-stars',
             'status' => 'live',
+            'price' => 38000, // UGX, full course
         ],
         'automate-with-ai' => [
             'title' => 'Automate Your Business with AI',
@@ -20,6 +22,7 @@ function course_catalog(): array
             'level' => 'Beginner to intermediate',
             'icon' => 'bi-gear-wide-connected',
             'status' => 'soon',
+            'price' => 60000, // UGX, full course
         ],
         'data-analysis-with-ai' => [
             'title' => 'Data Analysis with AI',
@@ -27,6 +30,7 @@ function course_catalog(): array
             'level' => 'Intermediate',
             'icon' => 'bi-graph-up-arrow',
             'status' => 'soon',
+            'price' => 60000, // UGX, full course
         ],
         'ai-for-marketing' => [
             'title' => 'AI for Marketing & Content',
@@ -34,6 +38,7 @@ function course_catalog(): array
             'level' => 'Beginner',
             'icon' => 'bi-megaphone',
             'status' => 'soon',
+            'price' => 50000, // UGX, full course
         ],
         'ai-for-managers' => [
             'title' => 'AI for Managers & Teams',
@@ -41,6 +46,7 @@ function course_catalog(): array
             'level' => 'All levels',
             'icon' => 'bi-people',
             'status' => 'soon',
+            'price' => 50000, // UGX, full course
         ],
         'build-apps-with-ai' => [
             'title' => 'Build Apps with AI',
@@ -48,6 +54,7 @@ function course_catalog(): array
             'level' => 'Intermediate',
             'icon' => 'bi-phone',
             'status' => 'soon',
+            'price' => 60000, // UGX, full course
         ],
     ];
 }

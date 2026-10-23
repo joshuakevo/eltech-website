@@ -381,6 +381,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   background: var(--tint); padding: .3rem .7rem; border-radius: 999px;
 }
 .level-live { background: #e7f6ee; color: #157347; }
+.course-price { font-size: .92rem; color: var(--navy); background: var(--tint); padding: .5rem .75rem; border-radius: 8px; }
+.course-price strong { color: #157347; }
 .course h3 { font-size: 1.3rem; }
 .course-lead { color: var(--muted); }
 .course .checks { margin-bottom: 1.5rem; }

@@ -176,9 +176,49 @@
 .unlock-card > i { font-size: 1.8rem; color: #f59e0b; }
 .unlock-card h2, .outcomes-card h2 { font-size: 1.2rem; margin: .5rem 0; }
 .unlock-price { font-size: 1.6rem; font-weight: 700; color: var(--navy); margin: .25rem 0 .75rem; }
+.unlock-price span { font-size: .9rem; font-weight: 500; color: var(--muted); }
+.btn-pay { width: 100%; font-size: 1.05rem; padding-top: .95rem; padding-bottom: .95rem; }
+.pay-note { margin: .6rem 0 0; font-size: .88rem; color: var(--muted); text-align: center; }
+.pay-note i { color: #f59e0b; }
+.pay-other { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: .95rem; }
+.pay-other summary { cursor: pointer; font-weight: 600; color: var(--blue); }
+.pay-other[open] summary { margin-bottom: .75rem; }
+
+/* Payment pop-up */
+.pay-modal { width: min(440px, calc(100vw - 24px)); }
+.pay-step { text-align: center; }
+.pay-step h2 { font-size: 1.5rem; }
+.pay-amount { font-size: 2rem; font-weight: 700; color: var(--navy); margin: .25rem 0 1.25rem; }
+.pay-form { text-align: left; }
+.pay-form label { display: block; font-weight: 500; color: var(--navy); margin-bottom: .35rem; }
+.pay-form input {
+  width: 100%; font: inherit; font-size: 1.15rem; letter-spacing: .03em; padding: .8rem 1rem;
+  border: 1px solid #c4ccd8; border-radius: 10px; margin-bottom: 1rem;
+}
+.pay-form .btn { width: 100%; font-size: 1.05rem; }
+.pay-secure { font-size: .85rem; color: var(--muted); margin: 1rem 0 0; }
+.pay-phone-anim {
+  width: 84px; height: 84px; margin: .5rem auto 1rem; border-radius: 50%;
+  display: grid; place-items: center; background: var(--tint); color: var(--blue); font-size: 2.4rem;
+  animation: pay-pulse 1.4s ease-in-out infinite;
+}
+@keyframes pay-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(21, 101, 192, .35); }
+  50% { box-shadow: 0 0 0 16px rgba(21, 101, 192, 0); }
+}
+.pay-wait-msg { font-size: 1.05rem; color: var(--navy); }
+.pay-icon { width: 76px; height: 76px; margin: .5rem auto 1rem; border-radius: 50%; display: grid; place-items: center; font-size: 2.2rem; color: var(--white); }
+.pay-icon-ok { background: #16a34a; }
+.pay-icon-fail { background: #dc2626; }
+.pay-step .btn { margin-top: .5rem; }
+@media (prefers-reduced-motion: reduce) {
+  .pay-phone-anim { animation: none; }
+}
+
 .unlock-steps { list-style: decimal; padding-left: 1.2rem; font-size: .95rem; }
 .unlock-steps li { margin-bottom: .4rem; }
 .unlock-card .btn { width: 100%; }
+.unlock-card .unlock-price { margin-bottom: 1rem; }
 
 .cert-banner {
   display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin-bottom: 1.5rem;

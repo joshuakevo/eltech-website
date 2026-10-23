@@ -40,8 +40,16 @@ return [
     'admin_emails' => ['kavinyia@gmail.com'],   // who can open /academy/admin.php
     'notify_email' => 'kavinyia@gmail.com',     // where new students, tasks and payments are reported
     'dev_login' => false,
+    'marzpay' => [                               // mobile money payments (optional)
+        'api_key' => 'YOUR-MARZPAY-API-KEY',
+        'api_secret' => 'YOUR-MARZPAY-API-SECRET',
+        'webhook_secret' => '',                  // only if webhook signing is on in Marz Pay
+    ],
 ];
 ```
+
+Without the `marzpay` block, the course page falls back to "pay and tell us" (manual unlock).
+In the Marz Pay dashboard, subscribe to the **Collections** service (MTN and Airtel Uganda).
 
 Because it sits outside public_html, it can never be opened in a browser or uploaded to GitHub.
 

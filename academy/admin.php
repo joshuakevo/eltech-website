@@ -15,13 +15,6 @@ $pdo = db();
 $catalog = course_catalog();
 $liveCourses = array_filter($catalog, fn ($c) => $c['status'] === 'live');
 
-function email_student(string $to, string $subject, string $body): bool
-{
-    $from = 'info@eltech-systems.com';
-    $headers = "From: Eltech Academy <$from>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8";
-    return @mail($to, mb_encode_mimeheader($subject, 'UTF-8'), $body, $headers, '-f' . $from);
-}
-
 $emailed = false;
 
 /* ---------- Actions ---------- */
@@ -40,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([(int) $_POST['id']]);
         if ($row = $stmt->fetch()) {
             $link = "https://eltech-systems.com/academy/lesson.php?c={$row['course']}&l={$row['lesson']}#task";
-            $emailed = email_student(
+            $emailed = send_mail(
                 $row['email'],
                 $status === 'approved' ? 'Your task was approved!' : 'Feedback on your task',
                 "Hi {$row['name']},\n\n"
@@ -61,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare('SELECT email, name FROM academy_users WHERE id = ?');
         $stmt->execute([$userId]);
         if ($student = $stmt->fetch()) {
-            $emailed = email_student(
+            $emailed = send_mail(
                 $student['email'],
                 'Your course is unlocked: ' . $catalog[$course]['title'],
                 "Hi {$student['name']},\n\nThank you for your payment. \"{$catalog[$course]['title']}\" is now fully unlocked.\n\n"
@@ -86,6 +79,7 @@ $tab = $_GET['tab'] ?? 'tasks';
 $pendingTasks = (int) $pdo->query("SELECT COUNT(*) FROM academy_submissions WHERE status = 'submitted'")->fetchColumn();
 $pendingRequests = (int) $pdo->query('SELECT COUNT(*) FROM academy_access_requests WHERE handled = 0')->fetchColumn();
 $studentCount = (int) $pdo->query('SELECT COUNT(*) FROM academy_users')->fetchColumn();
+$paidCount = (int) $pdo->query("SELECT COUNT(*) FROM academy_payments WHERE status = 'completed'")->fetchColumn();
 
 function lesson_title(string $course, string $lesson): string
 {
@@ -105,6 +99,7 @@ page_start('Admin', $user);
       <a href="?tab=tasks" <?= $tab === 'tasks' ? 'aria-current="page"' : '' ?>>Tasks to review <span><?= $pendingTasks ?></span></a>
       <a href="?tab=requests" <?= $tab === 'requests' ? 'aria-current="page"' : '' ?>>Unlock requests <span><?= $pendingRequests ?></span></a>
       <a href="?tab=students" <?= $tab === 'students' ? 'aria-current="page"' : '' ?>>Students <span><?= $studentCount ?></span></a>
+      <a href="?tab=payments" <?= $tab === 'payments' ? 'aria-current="page"' : '' ?>>Payments <span><?= $paidCount ?></span></a>
     </nav>
 
 <?php if ($tab === 'tasks'):
@@ -172,6 +167,35 @@ page_start('Admin', $user);
         <?php endif; ?>
       </article>
     <?php endforeach; ?>
+
+<?php elseif ($tab === 'payments'):
+    $rows = $pdo->query(
+        'SELECT p.*, u.name, u.email FROM academy_payments p JOIN academy_users u ON u.id = p.user_id
+         ORDER BY p.created_at DESC LIMIT 200'
+    )->fetchAll();
+    $received = (float) $pdo->query("SELECT COALESCE(SUM(amount), 0) FROM academy_payments WHERE status = 'completed'")->fetchColumn(); ?>
+    <p><strong>Total received:</strong> UGX <?= number_format($received) ?> <span class="muted">(before Marz Pay fees)</span></p>
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Date</th><th>Student</th><th>Course</th><th>Amount</th><th>Phone</th><th>Status</th></tr></thead>
+        <tbody>
+        <?php if (!$rows): ?><tr><td colspan="6" class="muted">No payments yet.</td></tr><?php endif; ?>
+        <?php foreach ($rows as $row): ?>
+          <tr>
+            <td><?= h(date('j M Y, H:i', strtotime($row['created_at']))) ?></td>
+            <td><strong><?= h($row['name']) ?></strong><br><span class="muted"><?= h($row['email']) ?></span></td>
+            <td><?= h($catalog[$row['course']]['title'] ?? $row['course']) ?></td>
+            <td>UGX <?= number_format((float) $row['amount']) ?></td>
+            <td><?= h($row['phone']) ?></td>
+            <td>
+              <span class="quiz-badge<?= $row['status'] === 'completed' ? '' : ' quiz-badge-todo' ?>"><?= h(ucfirst($row['status'])) ?></span>
+              <?php if ($row['provider_txn']): ?><br><span class="muted">ID <?= h($row['provider_txn']) ?></span><?php endif; ?>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
 
 <?php else:
     $rows = $pdo->query(

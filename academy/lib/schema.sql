@@ -65,6 +65,23 @@ CREATE TABLE IF NOT EXISTS academy_interest (
   PRIMARY KEY (user_id, course)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS academy_payments (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  course VARCHAR(64) NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  phone VARCHAR(20) NOT NULL,
+  reference CHAR(36) NOT NULL UNIQUE,
+  marz_uuid VARCHAR(64) NOT NULL DEFAULT '',
+  status VARCHAR(16) NOT NULL DEFAULT 'pending',
+  provider_txn VARCHAR(100) NOT NULL DEFAULT '',
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
+  checked_at DATETIME NULL,
+  KEY idx_user_course (user_id, course),
+  KEY idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS academy_certificates (
   code CHAR(10) NOT NULL PRIMARY KEY,
   user_id INT UNSIGNED NOT NULL,

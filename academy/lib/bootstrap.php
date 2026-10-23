@@ -13,6 +13,7 @@ ini_set('display_errors', '0');
 date_default_timezone_set('Africa/Kampala');
 
 require __DIR__ . '/courses.php';
+require __DIR__ . '/marzpay.php';
 
 /* ---------- Config, database, session ---------- */
 
@@ -46,10 +47,10 @@ function db(): PDO
     return $pdo;
 }
 
-// Creates the academy tables the first time the site connects
+// Creates any missing academy tables (checks for the newest table, so new tables get added on update)
 function ensure_schema(PDO $pdo): void
 {
-    if ($pdo->query("SHOW TABLES LIKE 'academy_users'")->fetch()) {
+    if ($pdo->query("SHOW TABLES LIKE 'academy_payments'")->fetch()) {
         return;
     }
     $sql = file_get_contents(__DIR__ . '/schema.sql');
@@ -146,6 +147,14 @@ function notify_admin(string $subject, string $body): void
     $headers = "From: Eltech Academy <$from>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8";
     $subject = preg_replace('/[\r\n]+/', ' ', $subject);
     @mail($to, mb_encode_mimeheader('[Academy] ' . $subject, 'UTF-8'), $body, $headers, '-f' . $from);
+}
+
+function send_mail(string $to, string $subject, string $body): bool
+{
+    $from = 'info@eltech-systems.com';
+    $headers = "From: Eltech Academy <$from>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8";
+    $subject = preg_replace('/[\r\n]+/', ' ', $subject);
+    return @mail($to, mb_encode_mimeheader($subject, 'UTF-8'), $body, $headers, '-f' . $from);
 }
 
 /* ---------- Users ---------- */

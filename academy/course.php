@@ -108,26 +108,77 @@ page_start($course['title'], $user);
           <i class="bi bi-gem" aria-hidden="true"></i>
           <h2>Unlock the full course</h2>
           <p>The first <?= (int) $course['free_lessons'] ?> lessons are free. Unlock all <?= $total ?> lessons, the practical tasks and your certificate.</p>
-          <?php if (!empty($course['price'])): ?>
-            <p class="unlock-price"><?= h($course['price']) ?></p>
+          <p class="unlock-price">UGX <?= number_format((float) $course['price']) ?> <span>one-time</span></p>
+
+          <?php if (marzpay_configured()): ?>
+            <button type="button" class="btn btn-primary btn-pay" data-open-pay>
+              <i class="bi bi-phone" aria-hidden="true"></i> Pay with mobile money
+            </button>
+            <p class="pay-note"><i class="bi bi-lightning-charge-fill" aria-hidden="true"></i> MTN or Airtel. Your course unlocks instantly.</p>
           <?php endif; ?>
-          <ol class="unlock-steps">
-            <li>Pay by mobile money or bank. <a href="https://wa.me/256705636699?text=<?= $whatsText ?>" target="_blank" rel="noopener">Ask for payment details on WhatsApp</a>.</li>
-            <li>Tell us below once you have paid.</li>
-            <li>We unlock your course, usually the same day.</li>
-          </ol>
-          <?php if ($requestPending): ?>
-            <p class="notify-done"><i class="bi bi-hourglass-split" aria-hidden="true"></i> Thanks! We are confirming your payment.</p>
-          <?php else: ?>
-            <form class="js-academy-form" data-endpoint="api/request-access.php" data-reload>
-              <input type="hidden" name="course" value="<?= h($course['slug']) ?>">
-              <label for="note">Payment details</label>
-              <textarea id="note" name="note" rows="3" required maxlength="1000" placeholder="For example: paid by MTN MoMo, transaction ID 123456789"></textarea>
-              <button type="submit" class="btn btn-primary">I have paid, unlock my course</button>
-              <p class="form-status" role="status" aria-live="polite"></p>
-            </form>
-          <?php endif; ?>
+
+          <details class="pay-other"<?= marzpay_configured() ? '' : ' open' ?>>
+            <summary>Paid by bank or another way?</summary>
+            <ol class="unlock-steps">
+              <li>Pay by bank or mobile money. <a href="https://wa.me/256705636699?text=<?= $whatsText ?>" target="_blank" rel="noopener">Ask for payment details on WhatsApp</a>.</li>
+              <li>Tell us below once you have paid.</li>
+              <li>We unlock your course, usually the same day.</li>
+            </ol>
+            <?php if ($requestPending): ?>
+              <p class="notify-done"><i class="bi bi-hourglass-split" aria-hidden="true"></i> Thanks! We are confirming your payment.</p>
+            <?php else: ?>
+              <form class="js-academy-form" data-endpoint="api/request-access.php" data-reload>
+                <input type="hidden" name="course" value="<?= h($course['slug']) ?>">
+                <label for="note">Payment details</label>
+                <textarea id="note" name="note" rows="3" required maxlength="1000" placeholder="For example: paid by bank transfer on 3 Nov, reference 12345"></textarea>
+                <button type="submit" class="btn btn-outline">I have paid, unlock my course</button>
+                <p class="form-status" role="status" aria-live="polite"></p>
+              </form>
+            <?php endif; ?>
+          </details>
         </div>
+
+        <?php if (marzpay_configured()): ?>
+        <dialog class="modal pay-modal" id="pay-modal" aria-labelledby="pay-title" data-course="<?= h($course['slug']) ?>">
+          <div class="modal-body">
+            <button type="button" class="modal-close" aria-label="Close" data-close-pay><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+
+            <div class="pay-step" data-step="form">
+              <p class="kicker">Unlock the full course</p>
+              <h2 id="pay-title"><?= h($course['title']) ?></h2>
+              <p class="pay-amount">UGX <?= number_format((float) $course['price']) ?></p>
+              <form class="pay-form" novalidate>
+                <label for="pay-phone">Your MTN or Airtel number</label>
+                <input type="tel" id="pay-phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="0772 123456" required maxlength="16">
+                <button type="submit" class="btn btn-primary">Pay UGX <?= number_format((float) $course['price']) ?></button>
+                <p class="form-status" role="status" aria-live="polite"></p>
+              </form>
+              <p class="pay-secure"><i class="bi bi-shield-lock" aria-hidden="true"></i> Secure payment by Marz Pay. We never see your PIN.</p>
+            </div>
+
+            <div class="pay-step" data-step="waiting" hidden>
+              <div class="pay-phone-anim" aria-hidden="true"><i class="bi bi-phone-vibrate"></i></div>
+              <h2>Check your phone</h2>
+              <p class="pay-wait-msg">Enter your mobile money PIN to approve the payment.</p>
+              <p class="muted pay-wait-hint">Waiting for confirmation… This usually takes under a minute.</p>
+            </div>
+
+            <div class="pay-step" data-step="done" hidden>
+              <div class="pay-icon pay-icon-ok" aria-hidden="true"><i class="bi bi-check-lg"></i></div>
+              <h2>Course unlocked!</h2>
+              <p>Payment received. All lessons, tasks and your certificate are now open.</p>
+              <a class="btn btn-primary" href="course.php?c=<?= h($course['slug']) ?>">Continue learning <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+            </div>
+
+            <div class="pay-step" data-step="failed" hidden>
+              <div class="pay-icon pay-icon-fail" aria-hidden="true"><i class="bi bi-x-lg"></i></div>
+              <h2>Payment not completed</h2>
+              <p class="pay-fail-msg">The payment was cancelled or did not go through. No money was taken.</p>
+              <button type="button" class="btn btn-primary" data-pay-retry>Try again</button>
+            </div>
+          </div>
+        </dialog>
+        <?php endif; ?>
       <?php endif; ?>
 
       <div class="outcomes-card">

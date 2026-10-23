@@ -195,6 +195,90 @@
     });
   });
 
+  /* ---------- Mobile money payment (Marz Pay) ---------- */
+
+  const payModal = document.getElementById("pay-modal");
+  if (payModal && typeof payModal.showModal === "function") {
+    const steps = payModal.querySelectorAll(".pay-step");
+    const payForm = payModal.querySelector(".pay-form");
+    const payStatus = payForm.querySelector(".form-status");
+    const payButton = payForm.querySelector("button[type=submit]");
+    let pollTimer = null;
+    let unlocked = false;
+
+    const showStep = (name) => steps.forEach((s) => { s.hidden = s.dataset.step !== name; });
+    const stopPolling = () => { clearTimeout(pollTimer); pollTimer = null; };
+
+    document.querySelectorAll("[data-open-pay]").forEach((btn) => btn.addEventListener("click", () => {
+      showStep("form");
+      setStatus(payStatus, "", true);
+      payModal.showModal();
+      payModal.querySelector("#pay-phone").focus();
+    }));
+    payModal.querySelector("[data-close-pay]").addEventListener("click", () => payModal.close());
+    payModal.addEventListener("click", (e) => { if (e.target === payModal) payModal.close(); });
+    payModal.addEventListener("close", () => {
+      stopPolling();
+      if (unlocked) location.reload();
+    });
+    payModal.querySelector("[data-pay-retry]").addEventListener("click", () => showStep("form"));
+
+    const poll = async (id, started) => {
+      try {
+        const res = await fetch("api/pay-status.php?id=" + encodeURIComponent(id), { credentials: "same-origin" });
+        const data = await res.json();
+        if (data.status === "completed") {
+          unlocked = true;
+          showStep("done");
+          celebrate(90);
+          return;
+        }
+        if (data.status === "failed") {
+          showStep("failed");
+          return;
+        }
+      } catch (e) { /* network hiccup: keep waiting */ }
+
+      const waited = Date.now() - started;
+      if (waited > 90000) {
+        payModal.querySelector(".pay-wait-hint").textContent =
+          "Taking longer than usual. If you approved the payment, your course will unlock automatically. You can close this window.";
+      }
+      if (waited < 5 * 60000) pollTimer = setTimeout(() => poll(id, started), 4000);
+    };
+
+    payForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const phone = payForm.phone.value.trim();
+      if (phone.replace(/\D/g, "").length < 9) {
+        setStatus(payStatus, "Please enter your mobile money number.", false);
+        payForm.phone.focus();
+        return;
+      }
+      payButton.disabled = true;
+      setStatus(payStatus, "Sending the payment request…", true);
+      const data = new FormData();
+      data.append("course", payModal.dataset.course);
+      data.append("phone", phone);
+      try {
+        const result = await post("api/pay-start.php", data);
+        if (!result.ok) {
+          setStatus(payStatus, result.message, false);
+          return;
+        }
+        payModal.querySelector(".pay-wait-msg").textContent = result.message;
+        payModal.querySelector(".pay-wait-hint").textContent = "Waiting for confirmation… This usually takes under a minute.";
+        showStep("waiting");
+        stopPolling();
+        pollTimer = setTimeout(() => poll(result.payment, Date.now()), 6000);
+      } catch (err) {
+        setStatus(payStatus, "Something went wrong. Please try again.", false);
+      } finally {
+        payButton.disabled = false;
+      }
+    });
+  }
+
   /* ---------- A little celebration ---------- */
 
   function celebrate(count) {

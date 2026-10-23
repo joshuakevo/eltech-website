@@ -9,7 +9,6 @@
 return [
     'description' => 'You have probably asked ChatGPT a question. This course shows you what else AI can do for your work: the main tools, how to write prompts that get results, how to work with documents, images and voice, and how to use AI safely every day.',
     'free_lessons' => 2,
-    'price' => null, // e.g. 'UGX 150,000' - shown on the unlock box when set
     'outcomes' => [
         'Choose the right AI tool for a task',
         'Write prompts that get useful answers first time',
