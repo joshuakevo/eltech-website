@@ -66,6 +66,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->prepare('DELETE FROM academy_access WHERE user_id = ? AND course = ?')
             ->execute([(int) $_POST['user_id'], (string) $_POST['course']]);
         flash('Access removed.');
+    } elseif ($action === 'price' && isset($catalog[$_POST['course'] ?? ''])) {
+        $price = (int) preg_replace('/\D/', '', (string) ($_POST['price'] ?? ''));
+        if ($price < 1000 || $price > 10000000) {
+            flash('Please enter a price between UGX 1,000 and UGX 10,000,000.');
+        } else {
+            $pdo->prepare(
+                'INSERT INTO academy_prices (course, price, updated_by, updated_at) VALUES (?, ?, ?, NOW())
+                 ON DUPLICATE KEY UPDATE price = VALUES(price), updated_by = VALUES(updated_by), updated_at = NOW()'
+            )->execute([$_POST['course'], $price, $user['email']]);
+            flash('Price for "' . $catalog[$_POST['course']]['title'] . '" is now UGX ' . number_format($price) . '.');
+        }
     } elseif ($action === 'dismiss') {
         $pdo->prepare('UPDATE academy_access_requests SET handled = 1 WHERE id = ?')->execute([(int) $_POST['id']]);
         flash('Request dismissed.');
@@ -100,6 +111,7 @@ page_start('Admin', $user);
       <a href="?tab=requests" <?= $tab === 'requests' ? 'aria-current="page"' : '' ?>>Unlock requests <span><?= $pendingRequests ?></span></a>
       <a href="?tab=students" <?= $tab === 'students' ? 'aria-current="page"' : '' ?>>Students <span><?= $studentCount ?></span></a>
       <a href="?tab=payments" <?= $tab === 'payments' ? 'aria-current="page"' : '' ?>>Payments <span><?= $paidCount ?></span></a>
+      <a href="?tab=prices" <?= $tab === 'prices' ? 'aria-current="page"' : '' ?>>Prices</a>
     </nav>
 
 <?php if ($tab === 'tasks'):
@@ -167,6 +179,27 @@ page_start('Admin', $user);
         <?php endif; ?>
       </article>
     <?php endforeach; ?>
+
+<?php elseif ($tab === 'prices'):
+    $prices = course_prices(); ?>
+    <p class="muted">Full-course prices in UGX. The first lessons stay free. Changes apply straight away to new payments and to the Learn AI page.</p>
+    <div class="price-admin">
+      <?php foreach ($catalog as $slug => $c): ?>
+        <form method="post" class="admin-card price-row">
+          <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
+          <input type="hidden" name="action" value="price">
+          <input type="hidden" name="tab" value="prices">
+          <input type="hidden" name="course" value="<?= h($slug) ?>">
+          <div>
+            <strong><?= h($c['title']) ?></strong>
+            <span class="muted"><?= $c['status'] === 'live' ? 'Live' : 'Coming soon' ?></span>
+          </div>
+          <label for="price-<?= h($slug) ?>" class="visually-hidden">Price for <?= h($c['title']) ?></label>
+          <span class="price-input"><span>UGX</span><input type="text" inputmode="numeric" id="price-<?= h($slug) ?>" name="price" value="<?= number_format($prices[$slug]) ?>" required></span>
+          <button type="submit" class="btn btn-primary btn-sm">Save</button>
+        </form>
+      <?php endforeach; ?>
+    </div>
 
 <?php elseif ($tab === 'payments'):
     $rows = $pdo->query(

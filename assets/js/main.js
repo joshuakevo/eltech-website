@@ -59,6 +59,18 @@
     monthlyEl.textContent = ugx(Math.ceil(finalPrice * (1 - DEPOSIT) / MONTHS / 1000) * 1000);
   });
 
+  // Course prices on the Learn AI page come from the academy, so admin price changes show here too
+  const coursePrices = document.querySelectorAll("[data-course-price]");
+  if (coursePrices.length) {
+    fetch("academy/api/prices.php")
+      .then((res) => res.json())
+      .then((data) => coursePrices.forEach((el) => {
+        const price = data.prices && data.prices[el.dataset.coursePrice];
+        if (price) el.textContent = ugx(price);
+      }))
+      .catch(() => { /* keep the price written in the page */ });
+  }
+
   // Fade sections in as they scroll into view
   const reveals = document.querySelectorAll(".reveal");
   if ("IntersectionObserver" in window) {

@@ -50,7 +50,7 @@ function db(): PDO
 // Creates any missing academy tables (checks for the newest table, so new tables get added on update)
 function ensure_schema(PDO $pdo): void
 {
-    if ($pdo->query("SHOW TABLES LIKE 'academy_payments'")->fetch()) {
+    if ($pdo->query("SHOW TABLES LIKE 'academy_prices'")->fetch()) {
         return;
     }
     $sql = file_get_contents(__DIR__ . '/schema.sql');
@@ -90,6 +90,12 @@ start_session();
 function h($value): string
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+}
+
+// Changes whenever the file changes, so browsers fetch the new version after an update
+function asset_version(string $file): string
+{
+    return (string) @filemtime(dirname(__DIR__, 2) . '/assets/' . $file);
 }
 
 function redirect(string $url): void

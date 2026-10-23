@@ -36,7 +36,7 @@ $issued = date('j F Y', strtotime($cert['issued_at']));
   <link href="../assets/img/favicon.png" rel="icon" type="image/png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="../assets/css/academy.css" rel="stylesheet">
+  <link href="../assets/css/academy.css?v=<?= asset_version('css/academy.css') ?>" rel="stylesheet">
 </head>
 <body class="cert-page">
   <div class="cert-actions">

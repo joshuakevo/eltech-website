@@ -28,8 +28,8 @@ function page_start(string $title, ?array $user, array $opts = []): void
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="../assets/css/main.css" rel="stylesheet">
-  <link href="../assets/css/academy.css" rel="stylesheet">
+  <link href="../assets/css/main.css?v=<?= asset_version('css/main.css') ?>" rel="stylesheet">
+  <link href="../assets/css/academy.css?v=<?= asset_version('css/academy.css') ?>" rel="stylesheet">
 </head>
 <body class="academy">
   <a class="skip-link" href="#main">Skip to content</a>
@@ -83,7 +83,7 @@ function page_end(array $opts = []): void
     </div>
   </footer>
 
-  <script src="../assets/js/academy.js"></script>
+  <script src="../assets/js/academy.js?v=<?= asset_version('js/academy.js') ?>"></script>
   <?php foreach ($opts['scripts'] ?? [] as $src): ?>
     <script src="<?= h($src) ?>" async defer></script>
   <?php endforeach; ?>

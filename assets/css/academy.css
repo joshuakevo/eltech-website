@@ -398,6 +398,13 @@
 .inline-form { margin: 0 0 .25rem; }
 .link-button { background: none; border: 0; padding: 0; color: var(--blue); font: inherit; cursor: pointer; text-decoration: underline; }
 
+.price-row { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; }
+.price-row > div { flex: 1 1 220px; display: grid; }
+.price-input { display: inline-flex; align-items: center; border: 1px solid #c4ccd8; border-radius: 10px; overflow: hidden; background: var(--white); }
+.price-input span { padding: 0 .7rem; color: var(--muted); font-weight: 600; background: var(--soft); align-self: stretch; display: grid; place-items: center; }
+.price-input input { width: 130px; border: 0; padding: .55rem .7rem; font: inherit; font-weight: 600; color: var(--navy); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
 .acad-footer { padding-top: 0; }
 
 /* Certificate (standalone page) */

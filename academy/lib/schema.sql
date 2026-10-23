@@ -82,6 +82,13 @@ CREATE TABLE IF NOT EXISTS academy_payments (
   KEY idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS academy_prices (
+  course VARCHAR(64) NOT NULL PRIMARY KEY,
+  price INT UNSIGNED NOT NULL,
+  updated_by VARCHAR(190) NOT NULL,
+  updated_at DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS academy_certificates (
   code CHAR(10) NOT NULL PRIMARY KEY,
   user_id INT UNSIGNED NOT NULL,

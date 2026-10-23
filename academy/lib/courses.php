@@ -2,7 +2,7 @@
 /**
  * Course catalogue. Live courses have their lessons in academy/content/<slug>.php.
  * To launch another course: write its content file, then set 'status' => 'live'.
- * 'price' is the full-course price in UGX (the first lessons are always free).
+ * 'price' is the default full-course price in UGX; the admin page (Prices tab) can override it.
  */
 
 function course_catalog(): array
@@ -67,7 +67,22 @@ function load_course(string $slug): ?array
         return null;
     }
     $content = require dirname(__DIR__) . '/content/' . $slug . '.php';
-    return array_merge($catalog[$slug], $content, ['slug' => $slug]);
+    return array_merge($catalog[$slug], $content, ['slug' => $slug, 'price' => course_prices()[$slug]]);
+}
+
+/** Current full-course prices in UGX: the admin's price if set, otherwise the default above. */
+function course_prices(): array
+{
+    static $prices = null;
+    if ($prices === null) {
+        $prices = array_map(fn ($c) => (int) $c['price'], course_catalog());
+        foreach (db()->query('SELECT course, price FROM academy_prices') as $row) {
+            if (isset($prices[$row['course']])) {
+                $prices[$row['course']] = (int) $row['price'];
+            }
+        }
+    }
+    return $prices;
 }
 
 function find_lesson(array $course, string $slug): ?int
