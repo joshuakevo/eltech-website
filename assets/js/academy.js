@@ -191,7 +191,8 @@
     link.addEventListener("click", (e) => {
       if (!link.classList.contains("is-disabled")) return;
       e.preventDefault();
-      document.getElementById("quiz").scrollIntoView({ behavior: "smooth" });
+      const target = document.getElementById("quiz") || document.querySelector(".intro-player");
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
     });
   });
 
@@ -284,7 +285,26 @@
   const introPlayer = document.querySelector(".intro-player");
   if (introPlayer) {
     const video = introPlayer.querySelector("video");
-    video.addEventListener("ended", () => introPlayer.classList.add("ended"));
+
+    // Watching to the end (or a video that cannot play) unlocks lesson 1
+    const unlockLessonOne = async () => {
+      if (!introPlayer.classList.contains("watched")) {
+        const data = new FormData();
+        data.append("course", introPlayer.dataset.course);
+        try { await post("api/intro-done.php", data); } catch (e) { /* the server check happens on the next page anyway */ }
+        introPlayer.classList.add("watched");
+      }
+      document.querySelectorAll(".intro-next").forEach((link) => {
+        link.classList.remove("is-disabled");
+        link.removeAttribute("aria-disabled");
+      });
+    };
+
+    video.addEventListener("ended", () => {
+      introPlayer.classList.add("ended");
+      unlockLessonOne();
+    });
+    video.addEventListener("error", unlockLessonOne, true);
     video.addEventListener("play", () => introPlayer.classList.remove("ended"));
     introPlayer.querySelector("[data-replay]").addEventListener("click", () => {
       video.currentTime = 0;

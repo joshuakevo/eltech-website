@@ -46,7 +46,7 @@ function page_start(string $title, ?array $user, array $opts = []): void
 
       <?php if ($user): ?>
         <div class="acad-user">
-          <a href="../index.html" class="acad-link" title="Eltech Systems website"><i class="bi bi-house" aria-hidden="true"></i><span>Website</span></a>
+          <a href="../index.html" class="acad-link" title="Eltech Systems website"><i class="bi bi-house" aria-hidden="true"></i><span>Home</span></a>
           <a href="index.php" class="acad-link acad-home"><i class="bi bi-grid" aria-hidden="true"></i><span>My learning</span></a>
           <?php if (is_admin($user)): ?>
             <a href="admin.php" class="acad-link"><i class="bi bi-speedometer2" aria-hidden="true"></i><span>Admin</span></a>
@@ -63,7 +63,7 @@ function page_start(string $title, ?array $user, array $opts = []): void
         </div>
       <?php else: ?>
         <div class="acad-user">
-          <a href="../index.html" class="acad-link" title="Eltech Systems website"><i class="bi bi-house" aria-hidden="true"></i><span>Website</span></a>
+          <a href="../index.html" class="acad-link" title="Eltech Systems website"><i class="bi bi-house" aria-hidden="true"></i><span>Home</span></a>
           <a href="../learn.html" class="acad-link"><i class="bi bi-info-circle" aria-hidden="true"></i><span>About the courses</span></a>
         </div>
       <?php endif; ?>

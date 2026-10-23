@@ -282,7 +282,8 @@ function has_access(int $userId, string $course): bool
 function lesson_states(array $course, array $progress, bool $access): array
 {
     $states = [];
-    $previousDone = true;
+    // The intro video (when a course has one) must be watched before lesson 1
+    $previousDone = empty($course['intro']) || intro_watched($progress);
     foreach ($course['lessons'] as $i => $lesson) {
         $done = !empty($progress[$lesson['slug']]['completed_at']);
         if ($done) {
@@ -297,6 +298,12 @@ function lesson_states(array $course, array $progress, bool $access): array
         $previousDone = $done;
     }
     return $states;
+}
+
+// The intro is stored as a progress row with lesson = 'intro' (no quiz, no points)
+function intro_watched(array $progress): bool
+{
+    return !empty($progress['intro']['completed_at']);
 }
 
 function course_is_complete(array $course, array $progress, array $submissions): bool
@@ -320,7 +327,7 @@ function student_stats(int $userId): array
 
     $stmt = $pdo->prepare(
         'SELECT COUNT(completed_at) AS lessons, SUM(completed_at IS NOT NULL AND quiz_score = quiz_total) AS perfect
-         FROM academy_progress WHERE user_id = ?'
+         FROM academy_progress WHERE user_id = ? AND lesson <> \'intro\''
     );
     $stmt->execute([$userId]);
     $p = $stmt->fetch();

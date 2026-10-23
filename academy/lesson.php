@@ -18,14 +18,14 @@ $states = lesson_states($course, $progress, has_access($userId, $course['slug'])
 $base = 'lesson.php?c=' . rawurlencode($course['slug']) . '&l=';
 
 /** Left-hand lesson list; $current is a lesson slug or 'intro'. */
-function side_list(array $course, array $states, string $base, string $current): void
+function side_list(array $course, array $states, string $base, string $current, bool $introDone): void
 {
     ?>
     <a class="back-link" href="course.php?c=<?= h($course['slug']) ?>"><i class="bi bi-arrow-left" aria-hidden="true"></i> <?= h($course['title']) ?></a>
     <ol class="side-list">
       <?php if ($course['intro']): ?>
-        <li class="is-open<?= $current === 'intro' ? ' is-current' : '' ?>">
-          <span class="side-icon"><i class="bi bi-play-circle" aria-hidden="true"></i></span>
+        <li class="is-<?= $introDone ? 'done' : 'open' ?><?= $current === 'intro' ? ' is-current' : '' ?>">
+          <span class="side-icon"><i class="bi <?= $introDone ? 'bi-check-circle-fill' : 'bi-play-circle' ?>" aria-hidden="true"></i></span>
           <a href="<?= h($base . 'intro') ?>"<?= $current === 'intro' ? ' aria-current="page"' : '' ?>>Introduction</a>
         </li>
       <?php endif; ?>
@@ -47,24 +47,25 @@ function side_list(array $course, array $states, string $base, string $current):
 /* ---------- Introduction: the course video, played inside the course ---------- */
 if ($isIntro) {
     record_activity($userId);
+    $introDone = intro_watched($progress);
     $first = $base . rawurlencode($course['lessons'][0]['slug']);
     page_start('Introduction: ' . $course['title'], $user);
     ?>
     <div class="container lesson-layout">
-      <aside class="lesson-side"><?php side_list($course, $states, $base, 'intro'); ?></aside>
+      <aside class="lesson-side"><?php side_list($course, $states, $base, 'intro', $introDone); ?></aside>
 
       <article class="lesson">
         <p class="lesson-kicker">Introduction &middot; 45 seconds</p>
         <h1>Welcome to <?= h($course['title']) ?></h1>
-        <p class="lesson-summary">See what you will achieve in this course, or skip straight to lesson 1.</p>
+        <p class="lesson-summary">Start here: see what you will achieve in this course. Watch to the end to unlock lesson 1.</p>
 
-        <div class="intro-player">
+        <div class="intro-player<?= $introDone ? ' watched' : '' ?>" data-course="<?= h($course['slug']) ?>">
           <video controls playsinline preload="metadata" poster="../assets/video/<?= h($course['intro']) ?>.jpg">
             <source src="../assets/video/<?= h($course['intro']) ?>.mp4" type="video/mp4">
           </video>
-          <a class="skip-intro" href="<?= h($first) ?>">Skip intro <i class="bi bi-skip-forward-fill" aria-hidden="true"></i></a>
+          <?php if ($introDone): ?><span class="intro-watched"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Watched</span><?php endif; ?>
           <div class="intro-end">
-            <p>Ready? Your first lesson takes about <?= (int) $course['lessons'][0]['minutes'] ?> minutes.</p>
+            <p><i class="bi bi-unlock-fill" aria-hidden="true"></i> Lesson 1 is unlocked. It takes about <?= (int) $course['lessons'][0]['minutes'] ?> minutes.</p>
             <a class="btn btn-primary" href="<?= h($first) ?>">Start lesson 1 <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
             <button type="button" class="btn btn-ghost" data-replay><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Watch again</button>
           </div>
@@ -81,7 +82,7 @@ if ($isIntro) {
 
         <nav class="lesson-nav" aria-label="Lesson navigation">
           <a class="btn btn-outline" href="course.php?c=<?= h($course['slug']) ?>"><i class="bi bi-arrow-left" aria-hidden="true"></i> Course overview</a>
-          <a class="btn btn-primary" href="<?= h($first) ?>">Start lesson 1 <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+          <a class="btn btn-primary next-lesson intro-next<?= $introDone ? '' : ' is-disabled' ?>" href="<?= h($first) ?>"<?= $introDone ? '' : ' aria-disabled="true"' ?>>Start lesson 1 <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
         </nav>
       </article>
     </div>
@@ -96,6 +97,10 @@ $state = $states[$lesson['slug']];
 if ($state === 'paid') {
     flash('This lesson is part of the full course. Unlock it to continue.');
     redirect('course.php?c=' . $course['slug'] . '#unlock');
+}
+if ($state === 'locked' && $index === 0) {
+    flash('Watch the introduction first. It unlocks lesson 1.');
+    redirect($base . 'intro');
 }
 if ($state === 'locked') {
     flash('Pass the quiz in the previous lesson to unlock this one.');
@@ -114,7 +119,7 @@ page_start($lesson['title'], $user);
 <div class="lesson-progress" aria-hidden="true"><span style="width: <?= round(($index + ($state === 'done' ? 1 : 0)) / $total * 100) ?>%"></span></div>
 
 <div class="container lesson-layout">
-  <aside class="lesson-side"><?php side_list($course, $states, $base, $lesson['slug']); ?></aside>
+  <aside class="lesson-side"><?php side_list($course, $states, $base, $lesson['slug'], intro_watched($progress)); ?></aside>
 
   <article class="lesson">
     <p class="lesson-kicker">Lesson <?= $index + 1 ?> of <?= $total ?> &middot; <?= (int) $lesson['minutes'] ?> min</p>

@@ -16,6 +16,7 @@ $submissions = course_submissions($userId, $course['slug']);
 $access = has_access($userId, $course['slug']);
 $states = lesson_states($course, $progress, $access);
 $done = count(array_filter($states, fn ($s) => $s === 'done'));
+$introDone = intro_watched($progress);
 $total = count($course['lessons']);
 $pct = round($done / $total * 100);
 $complete = course_is_complete($course, $progress, $submissions);
@@ -46,7 +47,7 @@ page_start($course['title'], $user);
         <h1><?= h($course['title']) ?></h1>
         <p class="lead"><?= h($course['description']) ?></p>
         <div class="head-actions">
-          <?php if ($next && !$done && $course['intro']): ?>
+          <?php if ($course['intro'] && !$introDone): ?>
             <a class="btn btn-primary" href="lesson.php?c=<?= h($course['slug']) ?>&amp;l=intro">
               Start the course <i class="bi bi-arrow-right" aria-hidden="true"></i>
             </a>
@@ -55,8 +56,8 @@ page_start($course['title'], $user);
               <?= $done ? 'Continue: ' . h($next['title']) : 'Start lesson 1' ?> <i class="bi bi-arrow-right" aria-hidden="true"></i>
             </a>
           <?php endif; ?>
-          <?php if ($course['intro']): ?>
-            <a class="btn btn-ghost" href="lesson.php?c=<?= h($course['slug']) ?>&amp;l=intro"><i class="bi bi-play-circle-fill" aria-hidden="true"></i> Watch the intro (45s)</a>
+          <?php if ($course['intro'] && $introDone): ?>
+            <a class="btn btn-ghost" href="lesson.php?c=<?= h($course['slug']) ?>&amp;l=intro"><i class="bi bi-play-circle-fill" aria-hidden="true"></i> Watch the intro again</a>
           <?php endif; ?>
         </div>
       </div>
@@ -83,11 +84,11 @@ page_start($course['title'], $user);
       <h2>Lessons</h2>
       <ol class="lesson-list">
         <?php if ($course['intro']): ?>
-          <li class="lesson-item is-intro">
-            <span class="lesson-num"><i class="bi bi-play-fill" aria-hidden="true"></i></span>
+          <li class="lesson-item is-intro<?= $introDone ? ' is-done' : ' is-open' ?>">
+            <span class="lesson-num"><i class="bi <?= $introDone ? 'bi-check-lg' : 'bi-play-fill' ?>" aria-hidden="true"></i></span>
             <div class="lesson-info">
               <a href="lesson.php?c=<?= h($course['slug']) ?>&amp;l=intro">Introduction: what you will achieve</a>
-              <span class="lesson-meta">45 sec video &middot; <span class="tag-free">Free</span> &middot; optional</span>
+              <span class="lesson-meta">45 sec video &middot; <span class="tag-free">Free</span> &middot; <?= $introDone ? 'Watched' : 'Watch first' ?></span>
             </div>
           </li>
         <?php endif; ?>

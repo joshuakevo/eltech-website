@@ -213,27 +213,26 @@ a.acad-course:hover .course-cover img { transform: scale(1.04); }
 .lesson-item.is-open .lesson-num { background: var(--blue); color: var(--white); }
 .lesson-item.is-locked, .lesson-item.is-paid { opacity: .75; }
 .lesson-item.is-intro .lesson-num { background: linear-gradient(135deg, var(--blue), #7c3aed); color: var(--white); font-size: 1.3rem; }
+.lesson-item.is-intro.is-done .lesson-num { background: #16a34a; }
 
 /* Intro video inside the course */
 .intro-player { position: relative; margin: 1.5rem 0 1rem; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 24px 48px -24px rgba(15, 36, 68, .6); }
 .intro-player video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #000; }
-.skip-intro {
-  position: absolute; top: 12px; right: 12px; z-index: 2;
-  display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .9rem; border-radius: 99px;
-  background: rgba(15, 36, 68, .75); color: var(--white); font-weight: 600; font-size: .9rem;
-  border: 1px solid rgba(255, 255, 255, .35); backdrop-filter: blur(4px);
-}
-.skip-intro:hover { background: var(--blue); color: var(--white); }
 .intro-end {
   position: absolute; inset: 0; z-index: 3; display: none; flex-direction: column; align-items: center; justify-content: center; gap: .9rem;
   background: rgba(15, 36, 68, .88); color: var(--white); text-align: center; padding: 1rem;
 }
 .intro-end p { margin: 0; font-size: 1.1rem; color: #e3ecfa; }
 .intro-player.ended .intro-end { display: flex; }
-.intro-player.ended .skip-intro { display: none; }
+.intro-watched {
+  position: absolute; top: 12px; right: 12px; z-index: 2; display: inline-flex; align-items: center; gap: .35rem;
+  padding: .35rem .8rem; border-radius: 99px; background: #16a34a; color: var(--white); font-weight: 600; font-size: .85rem;
+}
+.intro-player.ended .intro-watched { display: none; }
+.intro-end p i { color: #4ade80; }
 @media (max-width: 767px) {
   .intro-player { margin-left: -1.25rem; margin-right: -1.25rem; border-radius: 0; }
-  .skip-intro { top: 8px; right: 8px; padding: .3rem .7rem; font-size: .8rem; }
+  .intro-watched { top: 8px; right: 8px; padding: .25rem .65rem; font-size: .78rem; }
   .intro-end p { font-size: .95rem; }
   .intro-end .btn { padding: .55rem 1rem; font-size: .9rem; }
 }
