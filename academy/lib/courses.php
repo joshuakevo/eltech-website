@@ -15,7 +15,6 @@ function course_catalog(): array
             'icon' => 'bi-stars',
             'status' => 'live',
             'price' => 38000, // UGX, full course
-            'intro' => 'ai-beyond-chatgpt-intro', // assets/video/<name>.mp4 + .jpg poster
         ],
         'automate-with-ai' => [
             'title' => 'Automate Your Business with AI',
@@ -68,7 +67,9 @@ function load_course(string $slug): ?array
         return null;
     }
     $content = require dirname(__DIR__) . '/content/' . $slug . '.php';
-    return array_merge($catalog[$slug], $content, ['slug' => $slug, 'price' => course_prices()[$slug]]);
+    // Intro video, if one has been rendered: assets/video/<slug>-intro.mp4 (+ .jpg poster)
+    $intro = is_file(dirname(__DIR__, 2) . "/assets/video/$slug-intro.mp4") ? "$slug-intro" : null;
+    return array_merge($catalog[$slug], $content, ['slug' => $slug, 'price' => course_prices()[$slug], 'intro' => $intro]);
 }
 
 /** Current full-course prices in UGX: the admin's price if set, otherwise the default above. */

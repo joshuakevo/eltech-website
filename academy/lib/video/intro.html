@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<!--
+  Intro video template for every Eltech Academy course (1280x720, 45 s).
+  Open with ?c=<course-slug>. The renderer calls window.seek(ms) for each frame and
+  takes a screenshot; frames + make-music.py audio are encoded to assets/video/<slug>-intro.mp4.
+  To change a video, edit its entry in COURSES below and re-render.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Course intro</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="../../../assets/vendor/bootstrap-icons/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; background: #0f2444; }
+  body { font-family: "Inter", sans-serif; color: #fff; }
+  :root { --a1: #8db8ff; --a2: #c4b5fd; --num: #2563eb; }
+
+  .stage {
+    position: relative; width: 1280px; height: 720px; overflow: hidden;
+    background: radial-gradient(60% 80% at 80% 20%, rgba(37, 99, 235, .55), transparent 70%),
+                linear-gradient(150deg, #0b1b34, #0f2444 55%, #143a6e);
+  }
+  .dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.08) 1.5px, transparent 1.5px); background-size: 28px 28px; }
+  .glow { position: absolute; width: 520px; height: 520px; border-radius: 50%; background: radial-gradient(circle, var(--glow, rgba(109,40,217,.45)), transparent 70%); left: -160px; bottom: -220px; animation: drift 45s linear both; }
+  @keyframes drift { to { transform: translate(260px, -120px); } }
+
+  .scene {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; opacity: 0;
+    animation: scene calc((var(--e) - var(--s)) * 1s) linear calc(var(--s) * 1s) both;
+  }
+  .scene.last { animation-name: scene-last; }
+  @keyframes scene { 0% { opacity: 0; transform: translateY(24px); } 8% { opacity: 1; transform: none; } 92% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-16px); } }
+  @keyframes scene-last { 0% { opacity: 0; transform: translateY(24px); } 8% { opacity: 1; transform: none; } 100% { opacity: 1; } }
+
+  .pop { opacity: 0; animation: pop .6s cubic-bezier(.2, 1.4, .4, 1) calc(var(--d) * 1s) both; }
+  @keyframes pop { from { opacity: 0; transform: scale(.6) translateY(20px); } to { opacity: 1; transform: none; } }
+  .rise { opacity: 0; animation: rise .7s ease-out calc(var(--d) * 1s) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
+
+  .kicker { font-size: 22px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--a1); margin-bottom: 18px; }
+  h1 { font-size: 84px; font-weight: 800; letter-spacing: -.03em; line-height: 1.05; }
+  h2 { font-size: 58px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; max-width: 1150px; }
+  .sub { font-size: 30px; color: #c9d4e5; margin-top: 18px; }
+  .accent { background: linear-gradient(90deg, var(--a1), var(--a2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  .logo-tile { width: 132px; height: 104px; background: #fff; border-radius: 26px; display: grid; place-items: center; margin-bottom: 30px; box-shadow: 0 20px 40px -10px rgba(0,0,0,.5); }
+  .logo-tile img { width: 96px; }
+
+  .chat { display: flex; flex-direction: column; gap: 18px; align-items: flex-start; width: 760px; margin: 30px 0; }
+  .bubble { background: #fff; color: #0f2444; font-size: 30px; font-weight: 600; padding: 20px 28px; border-radius: 26px 26px 26px 6px; box-shadow: 0 16px 30px -12px rgba(0,0,0,.5); }
+  .bubble.me { align-self: flex-end; background: #2563eb; color: #fff; border-radius: 26px 26px 6px 26px; }
+  .burst { position: absolute; color: #fde68a; font-size: 54px; }
+
+  .step { position: absolute; top: 48px; left: 60px; display: flex; gap: 10px; }
+  .step span { width: 46px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.2); }
+  .step span.on { background: var(--a1); }
+  .outcome-num { width: 64px; height: 64px; border-radius: 50%; background: var(--num); display: grid; place-items: center; font-size: 30px; font-weight: 800; margin-bottom: 22px; }
+  .visual { display: flex; align-items: center; justify-content: center; gap: 22px; margin-top: 44px; min-height: 230px; }
+  .chip { background: #fff; color: #0f2444; border-radius: 20px; padding: 24px 30px; font-size: 30px; font-weight: 700; min-width: 190px; box-shadow: 0 16px 30px -12px rgba(0,0,0,.5); position: relative; }
+  .chip small { display: block; font-size: 17px; font-weight: 500; color: #5b6270; margin-top: 4px; }
+  .chip.best { outline: 5px solid #4ade80; }
+  .badge { position: absolute; top: -18px; right: -18px; width: 46px; height: 46px; border-radius: 50%; background: #16a34a; color: #fff; display: grid; place-items: center; font-size: 26px; }
+  .blocks { display: flex; gap: 12px; }
+  .block { border-radius: 16px; padding: 18px 22px; font-size: 26px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .arrow { font-size: 56px; color: var(--a1); }
+  .result { background: #fff; color: #157347; border-radius: 20px; padding: 22px 30px; font-size: 30px; font-weight: 800; display: flex; align-items: center; gap: 12px; }
+  .doc { width: 180px; height: 230px; background: #fff; border-radius: 14px; padding: 22px 18px; display: grid; gap: 10px; align-content: start; }
+  .doc i { display: block; height: 10px; border-radius: 5px; background: #c4ccd8; }
+  .summary { width: 380px; background: #fff; color: #0f2444; border-radius: 18px; padding: 24px 26px; text-align: left; font-size: 26px; font-weight: 600; display: grid; gap: 14px; }
+  .summary div { display: flex; gap: 12px; align-items: center; }
+  .summary .bi { color: #16a34a; }
+  .tile-wrap { display: grid; gap: 12px; justify-items: center; font-size: 24px; font-weight: 600; color: #c9d4e5; }
+  .icon-tile { width: 170px; height: 170px; border-radius: 30px; display: grid; place-items: center; font-size: 80px; color: #fff; box-shadow: 0 20px 40px -14px rgba(0,0,0,.6); }
+  .waves { display: flex; gap: 8px; align-items: center; height: 120px; }
+  .waves span { width: 12px; border-radius: 6px; background: var(--a1); animation: wave 1s ease-in-out infinite alternate; }
+  @keyframes wave { from { height: 20px; } to { height: 110px; } }
+
+  .cert { width: 600px; background: #fff; color: #0f2444; border: 10px solid #0f2444; outline: 3px solid #f59e0b; outline-offset: -20px; padding: 40px; border-radius: 6px; box-shadow: 0 30px 60px -16px rgba(0,0,0,.6); }
+  .cert p { color: #b45309; letter-spacing: .25em; font-size: 15px; font-weight: 700; }
+  .cert strong { display: block; font-size: 40px; margin: 12px 0 6px; }
+  .cert span { color: #1565c0; font-size: 26px; font-weight: 700; }
+  .medal { position: absolute; right: 310px; top: 380px; width: 120px; height: 120px; border-radius: 50%; background: #f59e0b; display: grid; place-items: center; font-size: 64px; color: #fff; box-shadow: 0 12px 30px -8px rgba(0,0,0,.6); }
+  .perks { display: flex; gap: 18px; margin-top: 34px; }
+  .perk { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 99px; padding: 12px 22px; font-size: 24px; font-weight: 600; display: flex; gap: 10px; align-items: center; }
+
+  .cta-btn { margin-top: 40px; background: #2563eb; color: #fff; font-size: 34px; font-weight: 800; padding: 22px 46px; border-radius: 18px; box-shadow: 0 18px 36px -10px rgba(37,99,235,.8); }
+  .url { margin-top: 26px; font-size: 28px; color: #c9d4e5; font-weight: 600; }
+  .brand-row { position: absolute; bottom: 44px; display: flex; align-items: center; gap: 14px; font-size: 22px; font-weight: 700; letter-spacing: .14em; color: #c9d4e5; }
+  .brand-row .logo-tile { width: 64px; height: 50px; border-radius: 12px; margin: 0; }
+  .brand-row .logo-tile img { width: 46px; }
+
+  .bar { position: absolute; left: 0; bottom: 0; height: 6px; width: 100%; background: linear-gradient(90deg, var(--num), var(--a1)); transform-origin: left; animation: barfill 45s linear both; }
+  @keyframes barfill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"><div class="dots"></div><div class="glow"></div></div>
+
+<script>
+/* ------------------------------------------------------------------ course data */
+const G = {
+  blue: 'linear-gradient(135deg, #2563eb, #1d4ed8)', violet: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+  pink: 'linear-gradient(135deg, #be185d, #f59e0b)', green: 'linear-gradient(135deg, #16a34a, #0f766e)',
+  teal: 'linear-gradient(135deg, #0d9488, #0f766e)', sky: 'linear-gradient(135deg, #0284c7, #2563eb)',
+  amber: 'linear-gradient(135deg, #f59e0b, #ea580c)', indigo: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+  wa: 'linear-gradient(135deg, #25d366, #128c7e)', rose: 'linear-gradient(135deg, #e11d48, #be185d)',
+};
+
+const COURSES = {
+  'ai-beyond-chatgpt': {
+    title: ['AI Beyond', 'ChatGPT'], oneLine: true, lessons: 6, minutes: 80,
+    colors: { a1: '#8db8ff', a2: '#c4b5fd', num: '#2563eb', glow: 'rgba(109,40,217,.45)' },
+    hook: { line: 'Most people use AI like this:', bubbles: [['me', 'Write me an email.'], ['ai', 'Sure! Here it is…']], punch: 'But AI can do so much more.' },
+    outcomes: [
+      { title: 'Choose the right AI tool', type: 'chips', items: [['ChatGPT', 'all-rounder'], ['Claude', 'long documents', true], ['Gemini', 'Google tools'], ['Copilot', 'Microsoft 365']] },
+      { title: 'Write prompts that get results', type: 'flow', items: ['Role', 'Task', 'Context', 'Format', 'Tone'], result: 'Great answer' },
+      { title: 'Summarise documents & check facts', type: 'doc', items: [['check-circle-fill', '3 key points'], ['check-circle-fill', 'Dates & amounts'], ['search', 'Facts checked']] },
+      { title: 'Create images & use your voice', type: 'icons', items: [['image', G.pink], ['mic-fill', G.violet]], waves: true },
+      { title: 'Use AI safely, every day', type: 'icons', items: [['shield-check', G.green], ['sunrise', '#f59e0b', 'Morning'], ['sun', '#0284c7', 'Day'], ['sunset', '#7c3aed', 'Evening']] },
+    ],
+  },
+  'automate-with-ai': {
+    title: ['Automate Your Business', 'with AI'], lessons: 5, minutes: 70,
+    colors: { a1: '#5eead4', a2: '#8db8ff', num: '#0d9488', glow: 'rgba(13,148,136,.45)' },
+    hook: { line: 'Still doing this every day?', bubbles: [['me', 'Copy the order into the sheet… again.'], ['me', 'Send the same reminder… again.']], punch: 'Let AI handle the repetitive work.' },
+    outcomes: [
+      { title: 'Spot what to automate', type: 'icons', items: [['arrow-repeat', G.teal, 'Repetitive'], ['signpost-split', G.sky, 'Rule-based'], ['laptop', G.indigo, 'Digital']] },
+      { title: 'Build no-code automations', type: 'flow', items: [['ui-checks', 'Form'], ['table', 'Sheet'], ['envelope', 'Email']], result: 'Runs on its own' },
+      { title: 'Add AI that sorts and drafts', type: 'chips', items: [['Sort', 'by topic'], ['Summarise', 'in 3 lines'], ['Draft', 'replies', true], ['Extract', 'to a sheet']] },
+      { title: 'Reply faster on WhatsApp', type: 'icons', items: [['whatsapp', G.wa, 'WhatsApp'], ['lightning-charge-fill', G.amber, 'Quick replies'], ['moon-stars', G.indigo, 'Away messages']] },
+      { title: 'Give your team an AI assistant', type: 'doc', items: [['check-circle-fill', 'Knows your prices'], ['check-circle-fill', 'Follows your rules'], ['check-circle-fill', 'Answers in seconds']] },
+    ],
+  },
+  'data-analysis-with-ai': {
+    title: ['Data Analysis', 'with AI'], lessons: 5, minutes: 70,
+    colors: { a1: '#7dd3fc', a2: '#8db8ff', num: '#0284c7', glow: 'rgba(2,132,199,.45)' },
+    hook: { line: 'Spreadsheets full of numbers…', bubbles: [['me', 'Which product makes us the most money?'], ['ai', 'Hmm… let me check 2,000 rows.']], punch: 'Turn your numbers into decisions.' },
+    outcomes: [
+      { title: 'Ask the right question', type: 'flow', items: ['Decision', 'Question', 'Measure'], result: 'Clear answer' },
+      { title: 'Clean messy data fast', type: 'doc', items: [['check-circle-fill', 'Duplicates removed'], ['check-circle-fill', 'Names fixed'], ['check-circle-fill', 'Dates sorted']] },
+      { title: 'Formulas & pivot tables, made easy', type: 'chips', items: [['SUMIF', 'totals'], ['XLOOKUP', 'look-ups'], ['IF', 'rules'], ['Pivot table', 'summaries', true]] },
+      { title: 'Ask your data in plain English', type: 'icons', items: [['chat-dots-fill', G.sky, 'Ask'], ['table', G.indigo, 'Analyse'], ['bar-chart-fill', G.teal, 'See']] },
+      { title: 'Charts that lead to decisions', type: 'icons', items: [['graph-up-arrow', G.sky, 'Trends'], ['bar-chart-line-fill', G.violet, 'Compare'], ['check2-circle', G.green, 'Decide']] },
+    ],
+  },
+  'ai-for-marketing': {
+    title: ['AI for Marketing', '& Content'], lessons: 5, minutes: 70,
+    colors: { a1: '#f9a8d4', a2: '#fcd34d', num: '#db2777', glow: 'rgba(219,39,119,.4)' },
+    hook: { line: 'Posting every day…', bubbles: [['me', 'New offer! Buy now!'], ['ai', '0 likes · 0 messages']], punch: 'Content that sells, in your own voice.' },
+    outcomes: [
+      { title: 'Know your customer & your voice', type: 'icons', items: [['person-heart', G.rose, 'Customer'], ['megaphone-fill', G.amber, 'Voice'], ['bullseye', G.violet, 'Message']] },
+      { title: 'Write posts that sell', type: 'flow', items: ['Hook', 'Value', 'Action'], result: 'More enquiries' },
+      { title: 'Posters, photos & short video', type: 'icons', items: [['image', G.pink, 'Posters'], ['camera-fill', G.violet, 'Photos'], ['play-btn-fill', G.rose, 'Video']] },
+      { title: 'Plan a month in one sitting', type: 'chips', items: [['Week 1', '3 posts'], ['Week 2', '3 posts'], ['Week 3', '3 posts'], ['Week 4', '3 posts']] },
+      { title: 'Measure what really works', type: 'doc', items: [['graph-up-arrow', 'Reach'], ['chat-heart', 'Enquiries'], ['cash-coin', 'Sales']] },
+    ],
+  },
+  'ai-for-managers': {
+    title: ['AI for Managers', '& Teams'], lessons: 5, minutes: 70,
+    colors: { a1: '#c4b5fd', a2: '#8db8ff', num: '#4f46e5', glow: 'rgba(79,70,229,.5)' },
+    hook: { line: 'Your team already uses AI.', bubbles: [['me', 'Can I paste customer data into ChatGPT?'], ['ai', 'Er… nobody told us.']], punch: 'Lead it with a plan.' },
+    outcomes: [
+      { title: 'See what AI changes at work', type: 'icons', items: [['lightning-charge-fill', G.amber, 'Faster work'], ['shield-exclamation', G.rose, 'New risks'], ['mortarboard-fill', G.indigo, 'New skills']] },
+      { title: 'Find your quick wins', type: 'chips', items: [['Quick wins', 'start here', true], ['Strategic', 'plan next'], ['Nice to have', 'try freely'], ['Skip', 'for now']] },
+      { title: 'Write a safe AI policy', type: 'doc', items: [['check-circle-fill', 'Approved tools'], ['check-circle-fill', 'Data rules'], ['check-circle-fill', 'Human check']] },
+      { title: 'Run a 30-day pilot', type: 'flow', items: ['Measure', 'Pilot', 'Decide'], result: 'Proven value' },
+      { title: 'Build your AI roadmap', type: 'flow', items: ['Month 1', 'Months 2–3', 'Months 4–6'], result: 'On track' },
+    ],
+  },
+  'build-apps-with-ai': {
+    title: ['Build Apps', 'with AI'], lessons: 5, minutes: 70,
+    colors: { a1: '#6ee7b7', a2: '#8db8ff', num: '#059669', glow: 'rgba(5,150,105,.45)' },
+    hook: { line: 'Got an app idea?', bubbles: [['me', 'I need an app for my field team.'], ['ai', 'Developers quote… a lot.']], punch: 'Build the first version yourself.' },
+    outcomes: [
+      { title: 'Know what you can build', type: 'chips', items: [['Forms', 'orders, sign-ups'], ['Data apps', 'stock, visits'], ['Chatbots', 'from your FAQs'], ['Websites', 'simple pages']] },
+      { title: 'Plan your app on one page', type: 'doc', items: [['people-fill', 'Users'], ['database', 'Data'], ['phone', 'Screens']] },
+      { title: 'Turn a spreadsheet into an app', type: 'flow', items: [['table', 'Sheet'], ['phone', 'App']], result: 'On every phone' },
+      { title: 'Build with AI app builders', type: 'icons', items: [['stars', G.violet, 'Describe'], ['phone-fill', G.green, 'Build'], ['chat-dots-fill', G.sky, 'Chatbot']] },
+      { title: 'Launch safely', type: 'icons', items: [['shield-lock-fill', G.green, 'Access'], ['cloud-arrow-up-fill', G.sky, 'Backups'], ['person-check-fill', G.indigo, 'Owner']] },
+    ],
+  },
+};
+
+/* ------------------------------------------------------------------ builder */
+const slug = new URLSearchParams(location.search).get('c') || 'ai-beyond-chatgpt';
+const C = COURSES[slug];
+const root = document.documentElement.style;
+root.setProperty('--a1', C.colors.a1);
+root.setProperty('--a2', C.colors.a2);
+root.setProperty('--num', C.colors.num);
+root.setProperty('--glow', C.colors.glow);
+
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const BLOCK_COLORS = ['#2563eb', '#7c3aed', '#0891b2', '#16a34a', '#ea580c'];
+const stage = document.getElementById('stage');
+const scene = (s, e, html, extra = '') => stage.insertAdjacentHTML('beforeend', `<section class="scene ${extra}" style="--s:${s}; --e:${e}">${html}</section>`);
+const steps = (n) => `<div class="step">${[0, 1, 2, 3, 4].map((i) => `<span class="${i < n ? 'on' : ''}"></span>`).join('')}</div>`;
+
+// 1. Title
+scene(0, 4.5, `
+  <div class="logo-tile pop" style="--d:.2"><img src="../../../assets/img/logo.png" alt=""></div>
+  <p class="kicker rise" style="--d:.6">Eltech Academy</p>
+  <h1 class="rise" style="--d:.9">${esc(C.title[0])}${C.oneLine ? ' ' : '<br>'}<span class="accent">${esc(C.title[1])}</span></h1>
+  <p class="sub rise" style="--d:1.5">${C.lessons} short lessons &middot; quizzes &middot; real tasks</p>`);
+
+// 2. Hook
+scene(4.5, 10, `
+  <h2 class="rise" style="--d:4.8">${esc(C.hook.line)}</h2>
+  <div class="chat">${C.hook.bubbles.map(([who, text], i) => `<div class="bubble ${who === 'me' ? 'me' : ''} pop" style="--d:${5.6 + i * 0.8}">${esc(text)}</div>`).join('')}</div>
+  <h2 class="rise" style="--d:7.6"><span class="accent">${esc(C.hook.punch)}</span></h2>
+  <i class="bi bi-stars burst pop" style="--d:8; left: 120px; top: 560px"></i>
+  <i class="bi bi-stars burst pop" style="--d:8.2; right: 120px; top: 90px"></i>`);
+
+// 3. Promise
+scene(10, 12.5, `
+  <p class="kicker rise" style="--d:10.2">In about ${C.minutes} minutes</p>
+  <h1 class="rise" style="--d:10.4">By the end,<br>you will…</h1>`);
+
+// 4-8. Outcomes, 4.5 s each
+C.outcomes.forEach((o, i) => {
+  const s = 12.5 + i * 4.5, d = (x) => (s + x).toFixed(2);
+  let visual = '';
+  if (o.type === 'chips') {
+    visual = o.items.map(([t, sub, best], k) => `<div class="chip ${best ? 'best' : ''} pop" style="--d:${d(1 + k * 0.3)}">${esc(t)}<small>${esc(sub)}</small>${best ? `<span class="badge pop" style="--d:${d(2.7)}"><i class="bi bi-check-lg"></i></span>` : ''}</div>`).join('');
+  } else if (o.type === 'flow') {
+    const blocks = o.items.map((it, k) => {
+      const [icon, label] = Array.isArray(it) ? it : [null, it];
+      return `<div class="block pop" style="--d:${d(1 + k * 0.25)}; background:${BLOCK_COLORS[k % 5]}">${icon ? `<i class="bi bi-${icon}"></i>` : ''}${esc(label)}</div>`;
+    }).join('');
+    const t = 1 + o.items.length * 0.25;
+    visual = `<div class="blocks">${blocks}</div><i class="bi bi-arrow-right arrow pop" style="--d:${d(t + 0.3)}"></i><div class="result pop" style="--d:${d(t + 0.7)}"><i class="bi bi-check-circle-fill"></i> ${esc(o.result)}</div>`;
+  } else if (o.type === 'doc') {
+    visual = `<div class="doc pop" style="--d:${d(1)}"><i></i><i style="width:80%"></i><i></i><i style="width:60%"></i><i></i><i style="width:85%"></i><i></i><i style="width:70%"></i><i></i><i style="width:50%"></i></div>
+      <i class="bi bi-arrow-right arrow pop" style="--d:${d(1.6)}"></i>
+      <div class="summary">${o.items.map(([icon, t], k) => `<div class="rise" style="--d:${d(2 + k * 0.4)}"><i class="bi bi-${icon}"></i> ${esc(t)}</div>`).join('')}</div>`;
+  } else if (o.type === 'icons') {
+    visual = o.items.map(([icon, bg, label], k) => `<div class="tile-wrap pop" style="--d:${d(1 + k * 0.35)}"><div class="icon-tile" style="background:${bg}"><i class="bi bi-${icon}"></i></div>${label ? esc(label) : ''}</div>`).join('');
+    if (o.waves) visual += `<div class="waves pop" style="--d:${d(1.8)}">${[-.1, -.5, -.3, -.8, -.2, -.6, -.4].map((x) => `<span style="animation-delay:${x}s"></span>`).join('')}</div>`;
+  }
+  scene(s, s + 4.5, `${steps(i + 1)}
+    <div class="outcome-num pop" style="--d:${d(.2)}">${i + 1}</div>
+    <h2 class="rise" style="--d:${d(.4)}">${esc(o.title)}</h2>
+    <div class="visual">${visual}</div>`);
+});
+
+// 9. Certificate
+scene(35, 39.5, `
+  <h2 class="rise" style="--d:35.2">Finish and earn your certificate</h2>
+  <div class="cert pop" style="--d:35.8; margin-top: 36px"><p>CERTIFICATE OF COMPLETION</p><strong>Your name here</strong><span>${esc(C.title.join(' '))}</span></div>
+  <div class="medal pop" style="--d:36.6"><i class="bi bi-award-fill"></i></div>
+  <div class="perks">
+    <div class="perk rise" style="--d:37.2"><i class="bi bi-star-fill" style="color:#fbbf24"></i> Points</div>
+    <div class="perk rise" style="--d:37.5"><i class="bi bi-fire" style="color:#fb923c"></i> Streaks</div>
+    <div class="perk rise" style="--d:37.8"><i class="bi bi-patch-check-fill" style="color:#4ade80"></i> Badges</div>
+  </div>`);
+
+// 10. Call to action
+scene(39.5, 45, `
+  <p class="kicker rise" style="--d:39.7">Start today</p>
+  <h1 class="rise" style="--d:40">The first 2 lessons<br><span class="accent">are free.</span></h1>
+  <div class="cta-btn pop" style="--d:41">Sign in with Google &amp; start</div>
+  <p class="url rise" style="--d:41.6">eltech-systems.com/academy</p>
+  <div class="brand-row rise" style="--d:42"><div class="logo-tile"><img src="../../../assets/img/logo.png" alt=""></div> ELTECH SYSTEMS</div>`, 'last');
+
+stage.insertAdjacentHTML('beforeend', '<div class="bar"></div>');
+
+// Used by the renderer: freeze every animation at the given time in milliseconds
+window.seek = (ms) => {
+  document.getAnimations().forEach((a) => { a.pause(); a.currentTime = ms; });
+};
+</script>
+</body>
+</html>
