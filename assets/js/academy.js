@@ -279,6 +279,20 @@
     });
   }
 
+  /* ---------- Intro video ---------- */
+
+  const videoModal = document.getElementById("video-modal");
+  if (videoModal && typeof videoModal.showModal === "function") {
+    const video = videoModal.querySelector("video");
+    document.querySelectorAll("[data-open-video]").forEach((btn) => btn.addEventListener("click", () => {
+      videoModal.showModal();
+      video.play().catch(() => { /* autoplay blocked: the controls are there */ });
+    }));
+    videoModal.querySelector("[data-close-video]").addEventListener("click", () => videoModal.close());
+    videoModal.addEventListener("click", (e) => { if (e.target === videoModal) videoModal.close(); });
+    videoModal.addEventListener("close", () => video.pause());
+  }
+
   /* ---------- A little celebration ---------- */
 
   function celebrate(count) {

@@ -514,6 +514,11 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 }
 .modal-close:hover { background: var(--tint); }
 
+/* Intro video pop-up */
+.video-modal { width: min(960px, calc(100vw - 24px)); padding: 0; background: #000; border-radius: 16px; overflow: hidden; }
+.video-modal video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #000; }
+.video-modal .modal-close { z-index: 2; background: rgba(255, 255, 255, .9); }
+
 /* WhatsApp button + nudge */
 .wa-float {
   position: fixed; right: 20px; bottom: 20px; z-index: 40;

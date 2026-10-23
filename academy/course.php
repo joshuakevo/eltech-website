@@ -45,11 +45,16 @@ page_start($course['title'], $user);
         <span class="level level-dark"><?= h($course['level']) ?></span>
         <h1><?= h($course['title']) ?></h1>
         <p class="lead"><?= h($course['description']) ?></p>
-        <?php if ($next): ?>
-          <a class="btn btn-primary" href="lesson.php?c=<?= h($course['slug']) ?>&amp;l=<?= h($next['slug']) ?>">
-            <?= $done ? 'Continue: ' . h($next['title']) : 'Start lesson 1' ?> <i class="bi bi-arrow-right" aria-hidden="true"></i>
-          </a>
-        <?php endif; ?>
+        <div class="head-actions">
+          <?php if ($next): ?>
+            <a class="btn btn-primary" href="lesson.php?c=<?= h($course['slug']) ?>&amp;l=<?= h($next['slug']) ?>">
+              <?= $done ? 'Continue: ' . h($next['title']) : 'Start lesson 1' ?> <i class="bi bi-arrow-right" aria-hidden="true"></i>
+            </a>
+          <?php endif; ?>
+          <?php if (!empty($course['intro'])): ?>
+            <button type="button" class="btn btn-ghost" data-open-video><i class="bi bi-play-circle-fill" aria-hidden="true"></i> Watch the intro (45s)</button>
+          <?php endif; ?>
+        </div>
       </div>
       <div class="course-progress-card">
         <div class="ring" style="--pct: <?= $pct ?>"><span><?= $pct ?>%</span></div>
@@ -59,6 +64,15 @@ page_start($course['title'], $user);
     </div>
   </div>
 </section>
+
+<?php if (!empty($course['intro'])): ?>
+<dialog class="modal video-modal" id="video-modal" aria-label="Course intro video">
+  <button type="button" class="modal-close" aria-label="Close" data-close-video><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+  <video controls playsinline preload="none" poster="../assets/video/<?= h($course['intro']) ?>.jpg">
+    <source src="../assets/video/<?= h($course['intro']) ?>.mp4" type="video/mp4">
+  </video>
+</dialog>
+<?php endif; ?>
 
 <section class="section-tight">
   <div class="container course-body">

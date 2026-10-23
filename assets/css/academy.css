@@ -176,6 +176,13 @@ a.acad-course:hover .course-cover img { transform: scale(1.04); }
 }
 .acad-course-head h1 { color: var(--white); margin: .75rem 0; }
 .acad-course-head .lead { max-width: 640px; margin-bottom: 1.5rem; }
+.head-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+
+/* Intro video pop-up */
+.video-modal { width: min(960px, calc(100vw - 24px)); padding: 0; background: #000; border-radius: 16px; overflow: hidden; }
+.video-modal video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #000; }
+.video-modal .modal-close { z-index: 2; background: rgba(255, 255, 255, .9); }
+
 .back-link { display: inline-flex; align-items: center; gap: .4rem; font-weight: 500; font-size: .95rem; margin-bottom: 1rem; }
 .acad-course-head .back-link { color: #8db8ff; }
 .level-dark { background: rgba(255, 255, 255, .1); color: #bcd4ff; }

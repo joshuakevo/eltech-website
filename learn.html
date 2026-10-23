@@ -31,7 +31,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link href="assets/vendor/bootstrap-icons/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="assets/css/main.css?v=20261023b" rel="stylesheet">
+  <link href="assets/css/main.css?v=20261023c" rel="stylesheet">
 
   <script>document.documentElement.classList.add("js");</script>
 </head>
@@ -87,7 +87,7 @@
           <p class="lead">Practical AI courses for business owners, teams and professionals. Learn to automate your work, understand your data and get real results with AI.</p>
           <div class="hero-actions">
             <a href="academy/" class="btn btn-primary">Start learning free <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
-            <a href="#courses" class="btn btn-ghost">See the courses</a>
+            <a href="#courses" class="btn btn-ghost" data-open-video><i class="bi bi-play-circle-fill" aria-hidden="true"></i> Watch the intro (45s)</a>
           </div>
           <ul class="hero-ticks">
             <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Hands-on</li>
@@ -415,6 +415,14 @@
     </div>
   </footer>
 
+  <!-- Intro video -->
+  <dialog class="modal video-modal" id="video-modal" aria-label="AI Beyond ChatGPT intro video">
+    <button type="button" class="modal-close" aria-label="Close" data-close-video><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+    <video controls playsinline preload="none" poster="assets/video/ai-beyond-chatgpt-intro.jpg">
+      <source src="assets/video/ai-beyond-chatgpt-intro.mp4" type="video/mp4">
+    </video>
+  </dialog>
+
   <!-- WhatsApp nudge -->
   <div class="wa-bubble" id="wa-bubble" hidden>
     <button type="button" class="wa-bubble-close" aria-label="Dismiss"><i class="bi bi-x" aria-hidden="true"></i></button>
@@ -424,7 +432,7 @@
     <i class="bi bi-whatsapp" aria-hidden="true"></i>
   </a>
 
-  <script src="assets/js/main.js?v=20261023b"></script>
+  <script src="assets/js/main.js?v=20261023c"></script>
 
 </body>
 

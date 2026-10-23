@@ -15,6 +15,7 @@ function course_catalog(): array
             'icon' => 'bi-stars',
             'status' => 'live',
             'price' => 38000, // UGX, full course
+            'intro' => 'ai-beyond-chatgpt-intro', // assets/video/<name>.mp4 + .jpg poster
         ],
         'automate-with-ai' => [
             'title' => 'Automate Your Business with AI',
