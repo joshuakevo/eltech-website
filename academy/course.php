@@ -90,6 +90,7 @@ page_start($course['title'], $user);
               <a href="lesson.php?c=<?= h($course['slug']) ?>&amp;l=intro">Introduction: what you will achieve</a>
               <span class="lesson-meta">45 sec video &middot; <span class="tag-free">Free</span> &middot; <?= $introDone ? 'Watched' : 'Watch first' ?></span>
             </div>
+            <span class="lesson-play" aria-hidden="true"><i class="bi <?= $introDone ? 'bi-arrow-counterclockwise' : 'bi-play-fill' ?>"></i></span>
           </li>
         <?php endif; ?>
         <?php foreach ($course['lessons'] as $i => $lesson):
@@ -116,6 +117,7 @@ page_start($course['title'], $user);
                 <?php if ($sub): ?> &middot; Task: <?= $sub['status'] === 'approved' ? 'approved' : ($sub['status'] === 'needs_work' ? 'needs work' : 'submitted') ?><?php endif; ?>
               </span>
             </div>
+            <span class="lesson-play" aria-hidden="true"><i class="bi <?= $state === 'done' ? 'bi-arrow-counterclockwise' : 'bi-play-fill' ?>"></i></span>
           </li>
         <?php endforeach; ?>
       </ol>
