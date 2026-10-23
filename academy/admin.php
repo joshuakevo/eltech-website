@@ -91,6 +91,36 @@ $pendingTasks = (int) $pdo->query("SELECT COUNT(*) FROM academy_submissions WHER
 $pendingRequests = (int) $pdo->query('SELECT COUNT(*) FROM academy_access_requests WHERE handled = 0')->fetchColumn();
 $studentCount = (int) $pdo->query('SELECT COUNT(*) FROM academy_users')->fetchColumn();
 $paidCount = (int) $pdo->query("SELECT COUNT(*) FROM academy_payments WHERE status = 'completed'")->fetchColumn();
+$onlineNow = (int) $pdo->query('SELECT COUNT(DISTINCT visitor) FROM academy_visits WHERE visited_at > NOW() - INTERVAL 5 MINUTE')->fetchColumn();
+
+/** Friendly name for a visited page. */
+function page_label(string $path): string
+{
+    $parts = parse_url($path);
+    $file = $parts['path'] ?? '';
+    parse_str($parts['query'] ?? '', $q);
+    if (in_array($file, ['/', '/index.html'], true)) {
+        return 'Home page';
+    }
+    if ($file === '/learn.html') {
+        return 'Learn AI page';
+    }
+    if (in_array($file, ['/academy/', '/academy/index.php'], true)) {
+        return 'Academy: sign in / My learning';
+    }
+    $course = isset($q['c']) ? load_course((string) $q['c']) : null;
+    if ($course && $file === '/academy/course.php') {
+        return 'Course: ' . $course['title'];
+    }
+    if ($course && $file === '/academy/lesson.php') {
+        if (($q['l'] ?? '') === 'intro') {
+            return 'Intro video: ' . $course['title'];
+        }
+        $i = find_lesson($course, (string) ($q['l'] ?? ''));
+        return $i === null ? 'Lesson: ' . $course['title'] : 'Lesson ' . ($i + 1) . ': ' . $course['lessons'][$i]['title'];
+    }
+    return $path;
+}
 
 function lesson_title(string $course, string $lesson): string
 {
@@ -112,6 +142,7 @@ page_start('Admin', $user);
       <a href="?tab=students" <?= $tab === 'students' ? 'aria-current="page"' : '' ?>>Students <span><?= $studentCount ?></span></a>
       <a href="?tab=payments" <?= $tab === 'payments' ? 'aria-current="page"' : '' ?>>Payments <span><?= $paidCount ?></span></a>
       <a href="?tab=prices" <?= $tab === 'prices' ? 'aria-current="page"' : '' ?>>Prices</a>
+      <a href="?tab=visitors" <?= $tab === 'visitors' ? 'aria-current="page"' : '' ?>>Visitors <span><?= $onlineNow ?> online</span></a>
     </nav>
 
 <?php if ($tab === 'tasks'):
@@ -179,6 +210,147 @@ page_start('Admin', $user);
         <?php endif; ?>
       </article>
     <?php endforeach; ?>
+
+<?php elseif ($tab === 'visitors'):
+    $count = fn (string $where) => (int) $pdo->query("SELECT COUNT(DISTINCT day, visitor) FROM academy_visits WHERE $where")->fetchColumn();
+    $views = fn (string $where) => (int) $pdo->query("SELECT COUNT(*) FROM academy_visits WHERE $where")->fetchColumn();
+    $tiles = [
+        ['Online now', $onlineNow, 'last 5 minutes', null],
+        ['Today', $count('day = CURDATE()'), 'visitors', $views('day = CURDATE()')],
+        ['Last 7 days', $count('day > CURDATE() - INTERVAL 7 DAY'), 'visits', $views('day > CURDATE() - INTERVAL 7 DAY')],
+        ['Last 30 days', $count('day > CURDATE() - INTERVAL 30 DAY'), 'visits', $views('day > CURDATE() - INTERVAL 30 DAY')],
+    ];
+
+    // Visitors per day for the last 30 days (days without visits show as 0)
+    $perDay = [];
+    foreach ($pdo->query('SELECT day, COUNT(DISTINCT visitor) AS n FROM academy_visits WHERE day > CURDATE() - INTERVAL 30 DAY GROUP BY day') as $r) {
+        $perDay[$r['day']] = (int) $r['n'];
+    }
+    $days = [];
+    for ($d = 29; $d >= 0; $d--) {
+        $key = date('Y-m-d', strtotime("-$d day"));
+        $days[$key] = $perDay[$key] ?? 0;
+    }
+    $max = max(1, max($days));
+    // Whole-number scale with a whole-number midpoint
+    $scaleTop = $max <= 4 ? 4 : ($max <= 10 ? 10 : (int) (ceil($max / 10) * 10));
+
+    // Group by page name, so e.g. "/" and "/index.html" count as one Home page
+    $topPages = [];
+    $rows = $pdo->query(
+        'SELECT path, day, visitor FROM academy_visits WHERE day > CURDATE() - INTERVAL 30 DAY'
+    )->fetchAll();
+    foreach ($rows as $r) {
+        $label = page_label($r['path']);
+        $topPages[$label]['views'] = ($topPages[$label]['views'] ?? 0) + 1;
+        $topPages[$label]['people'][$r['day'] . $r['visitor']] = true;
+    }
+    uasort($topPages, fn ($a, $b) => $b['views'] <=> $a['views']);
+    $topPages = array_slice($topPages, 0, 12, true);
+    $sources = $pdo->query(
+        "SELECT source, COUNT(DISTINCT day, visitor) AS people FROM academy_visits
+         WHERE day > CURDATE() - INTERVAL 30 DAY AND source <> 'Inside the site' GROUP BY source ORDER BY people DESC LIMIT 10"
+    )->fetchAll();
+    $devices = $pdo->query(
+        'SELECT device, COUNT(DISTINCT day, visitor) AS people FROM academy_visits
+         WHERE day > CURDATE() - INTERVAL 30 DAY GROUP BY device ORDER BY people DESC'
+    )->fetchAll();
+    $recent = $pdo->query(
+        'SELECT v.*, u.name FROM academy_visits v LEFT JOIN academy_users u ON u.id = v.user_id ORDER BY v.id DESC LIMIT 20'
+    )->fetchAll();
+    $sourceTotal = max(1, array_sum(array_column($sources, 'people')));
+    $deviceTotal = max(1, array_sum(array_column($devices, 'people'))); ?>
+    <p class="muted">Visits to the website and the academy. Anonymous: no IP addresses or cookies are stored, and your own visits as admin are not counted. A "visit" is one person on one day.</p>
+
+    <div class="v-tiles">
+      <?php foreach ($tiles as [$label, $value, $unit, $pageViews]): ?>
+        <div class="v-tile">
+          <span class="v-label"><?= h($label) ?></span>
+          <strong><?= number_format($value) ?></strong>
+          <span class="muted"><?= h($unit) ?><?= $pageViews !== null ? ' &middot; ' . number_format($pageViews) . ' page views' : '' ?></span>
+        </div>
+      <?php endforeach; ?>
+    </div>
+
+    <section class="admin-card v-chart-card">
+      <h2 class="v-title">Visitors per day <span class="muted">last 30 days</span></h2>
+      <div class="v-chart" role="img" aria-label="Bar chart of visitors per day for the last 30 days">
+        <div class="v-grid" aria-hidden="true">
+          <span data-v="<?= $scaleTop ?>"></span><span data-v="<?= $scaleTop / 2 ?>"></span><span data-v="0"></span>
+        </div>
+        <div class="v-bars">
+          <?php $i = 0; foreach ($days as $day => $n): ?>
+            <div class="v-col" tabindex="0" data-tip="<?= h(date('D j M', strtotime($day))) ?>: <?= $n ?> visitor<?= $n === 1 ? '' : 's' ?>">
+              <span class="v-bar" style="height: <?= $n ? max(2, round($n / $scaleTop * 100, 1)) : 0 ?>%"></span>
+              <span class="v-day"><?= ($i % 5 === 4 || $i === 29) ? h(date('j M', strtotime($day))) : '' ?></span>
+            </div>
+          <?php $i++; endforeach; ?>
+        </div>
+      </div>
+      <details class="v-table">
+        <summary>Show as a table</summary>
+        <table class="admin-table"><thead><tr><th>Day</th><th>Visitors</th></tr></thead><tbody>
+          <?php foreach (array_reverse($days, true) as $day => $n): ?><tr><td><?= h(date('D j M', strtotime($day))) ?></td><td><?= $n ?></td></tr><?php endforeach; ?>
+        </tbody></table>
+      </details>
+    </section>
+
+    <div class="v-grid-2">
+      <section class="admin-card">
+        <h2 class="v-title">Top pages <span class="muted">last 30 days</span></h2>
+        <table class="admin-table v-compact">
+          <thead><tr><th>Page</th><th>Views</th><th>Visitors</th></tr></thead>
+          <tbody>
+          <?php if (!$topPages): ?><tr><td colspan="3" class="muted">No visits yet.</td></tr><?php endif; ?>
+          <?php foreach ($topPages as $label => $r): ?>
+            <tr><td><?= h($label) ?></td><td><?= (int) $r['views'] ?></td><td><?= count($r['people']) ?></td></tr>
+          <?php endforeach; ?>
+          </tbody>
+        </table>
+      </section>
+
+      <div>
+        <section class="admin-card">
+          <h2 class="v-title">Where visitors came from</h2>
+          <?php if (!$sources): ?><p class="muted">No visits yet.</p><?php endif; ?>
+          <ul class="v-list">
+            <?php foreach ($sources as $r): $pct = round($r['people'] / $sourceTotal * 100); ?>
+              <li><span><?= h($r['source']) ?></span><span class="v-meter"><span style="width: <?= $pct ?>%"></span></span><strong><?= (int) $r['people'] ?></strong></li>
+            <?php endforeach; ?>
+          </ul>
+        </section>
+        <section class="admin-card">
+          <h2 class="v-title">Devices</h2>
+          <ul class="v-list">
+            <?php foreach ($devices as $r): $pct = round($r['people'] / $deviceTotal * 100); ?>
+              <li><span><i class="bi <?= $r['device'] === 'Phone' ? 'bi-phone' : ($r['device'] === 'Tablet' ? 'bi-tablet' : 'bi-laptop') ?>" aria-hidden="true"></i> <?= h($r['device']) ?></span><span class="v-meter"><span style="width: <?= $pct ?>%"></span></span><strong><?= $pct ?>%</strong></li>
+            <?php endforeach; ?>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <section class="admin-card">
+      <h2 class="v-title">Latest visits</h2>
+      <div class="table-wrap">
+        <table class="admin-table v-compact">
+          <thead><tr><th>When</th><th>Page</th><th>From</th><th>Device</th><th>Who</th></tr></thead>
+          <tbody>
+          <?php if (!$recent): ?><tr><td colspan="5" class="muted">No visits yet.</td></tr><?php endif; ?>
+          <?php foreach ($recent as $r): ?>
+            <tr>
+              <td><?= h(date('j M, H:i', strtotime($r['visited_at']))) ?></td>
+              <td><?= h(page_label($r['path'])) ?></td>
+              <td><?= h($r['source']) ?></td>
+              <td><?= h($r['device']) ?></td>
+              <td><?= $r['name'] ? '<strong>' . h($r['name']) . '</strong>' : '<span class="muted">Visitor ' . h(strtoupper(substr($r['visitor'], 0, 4))) . '</span>' ?></td>
+            </tr>
+          <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <p class="muted">Tip: when you share a link on WhatsApp or Facebook, add <code>?utm_source=whatsapp</code> (or facebook) to the end, so those visits show up here by name. Apps like WhatsApp often hide where a visit came from.</p>
 
 <?php elseif ($tab === 'prices'):
     $prices = course_prices(); ?>

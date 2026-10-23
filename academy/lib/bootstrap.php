@@ -50,7 +50,7 @@ function db(): PDO
 // Creates any missing academy tables (checks for the newest table, so new tables get added on update)
 function ensure_schema(PDO $pdo): void
 {
-    if ($pdo->query("SHOW TABLES LIKE 'academy_prices'")->fetch()) {
+    if ($pdo->query("SHOW TABLES LIKE 'academy_visits'")->fetch()) {
         return;
     }
     $sql = file_get_contents(__DIR__ . '/schema.sql');
@@ -83,7 +83,10 @@ function start_session(): void
     session_start();
 }
 
-start_session();
+// The visit counter defines ACADEMY_NO_SESSION so anonymous visitors never get a session cookie
+if (!defined('ACADEMY_NO_SESSION')) {
+    start_session();
+}
 
 /* ---------- Helpers ---------- */
 

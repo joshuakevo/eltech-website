@@ -19,6 +19,18 @@
     el.className = el.className.replace(/\s?(ok|error)/g, "") + (ok ? " ok" : " error");
   };
 
+  /* ---------- Anonymous visit counter (admin "Visitors" tab) ---------- */
+
+  try {
+    const q = new URLSearchParams(location.search);
+    const keep = ["c", "l"].filter((k) => q.get(k)).map((k) => k + "=" + encodeURIComponent(q.get(k))).join("&");
+    const visit = new FormData();
+    visit.append("p", location.pathname + (keep ? "?" + keep : ""));
+    visit.append("r", document.referrer);
+    visit.append("u", q.get("utm_source") || "");
+    if (navigator.sendBeacon && !/admin\.php$/.test(location.pathname)) navigator.sendBeacon("api/track.php", visit);
+  } catch (e) { /* counting must never break the page */ }
+
   /* ---------- Sign in ---------- */
 
   // Called by Google's button with the signed-in user's ID token

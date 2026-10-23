@@ -498,6 +498,49 @@ a.acad-course:hover .course-cover img { transform: scale(1.04); }
 .price-input input { width: 130px; border: 0; padding: .55rem .7rem; font: inherit; font-weight: 600; color: var(--navy); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
+/* Admin: Visitors */
+.v-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; margin-bottom: 1rem; }
+@media (min-width: 900px) {
+  .v-tiles { grid-template-columns: repeat(4, 1fr); }
+}
+.v-tile { display: grid; gap: .1rem; background: var(--white); border: 1px solid var(--line); border-radius: 14px; padding: 1rem 1.1rem; }
+.v-tile strong { font-size: 2rem; line-height: 1.1; color: var(--navy); }
+.v-tile .muted { font-size: .85rem; }
+.v-label { font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.v-tile:first-child strong::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #16a34a; margin-right: .5rem; vertical-align: middle; box-shadow: 0 0 0 4px #dcfce7; }
+.v-title { font-size: 1.1rem; margin-bottom: 1rem; }
+.v-title .muted { font-size: .85rem; font-weight: 400; margin-left: .35rem; }
+
+.v-chart { position: relative; height: 220px; padding: 0 0 22px 34px; }
+.v-grid { position: absolute; inset: 0 0 22px 34px; display: flex; flex-direction: column; justify-content: space-between; }
+.v-grid span { position: relative; border-top: 1px solid var(--line); }
+.v-grid span:last-child { border-top-color: #c4ccd8; }
+.v-grid span::before { content: attr(data-v); position: absolute; left: -34px; top: -.6em; width: 28px; text-align: right; font-size: .75rem; color: var(--muted); }
+.v-bars { position: relative; display: flex; gap: 2px; height: 100%; align-items: flex-end; }
+.v-col { position: relative; flex: 1; height: 100%; display: flex; align-items: flex-end; justify-content: center; outline: none; }
+.v-bar { width: min(100%, 18px); background: var(--blue); border-radius: 4px 4px 0 0; min-height: 0; transition: background .15s; }
+.v-col:hover .v-bar, .v-col:focus .v-bar { background: var(--navy); }
+.v-day { position: absolute; bottom: -22px; font-size: .72rem; color: var(--muted); white-space: nowrap; }
+.v-col:hover::after, .v-col:focus::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); z-index: 5;
+  background: var(--navy); color: var(--white); font-size: .8rem; font-weight: 600; padding: .35rem .6rem; border-radius: 8px; white-space: nowrap;
+}
+.v-col:hover::after { bottom: auto; top: 0; }
+.v-table { margin-top: 1rem; font-size: .9rem; }
+.v-table summary { cursor: pointer; color: var(--blue); font-weight: 600; }
+.v-table table { margin-top: .5rem; }
+
+.v-grid-2 { display: grid; gap: 1rem; }
+@media (min-width: 900px) {
+  .v-grid-2 { grid-template-columns: 1.3fr 1fr; }
+}
+.v-compact th, .v-compact td { padding: .55rem .75rem; }
+.v-list { display: grid; gap: .6rem; }
+.v-list li { display: grid; grid-template-columns: minmax(90px, 1fr) 2fr auto; gap: .75rem; align-items: center; font-size: .92rem; }
+.v-meter { height: 8px; border-radius: 99px; background: var(--soft); overflow: hidden; }
+.v-meter span { display: block; height: 100%; border-radius: 99px; background: var(--blue); }
+.v-list strong { color: var(--navy); min-width: 2.5em; text-align: right; }
+
 .acad-footer { padding-top: 0; }
 
 /* Certificate (standalone page) */

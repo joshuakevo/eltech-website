@@ -89,6 +89,19 @@ CREATE TABLE IF NOT EXISTS academy_prices (
   updated_at DATETIME NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS academy_visits (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  visited_at DATETIME NOT NULL,
+  day DATE NOT NULL,
+  visitor CHAR(16) NOT NULL,
+  path VARCHAR(200) NOT NULL,
+  source VARCHAR(60) NOT NULL,
+  device VARCHAR(10) NOT NULL,
+  user_id INT UNSIGNED NULL,
+  KEY idx_time (visited_at),
+  KEY idx_day (day)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS academy_certificates (
   code CHAR(10) NOT NULL PRIMARY KEY,
   user_id INT UNSIGNED NOT NULL,

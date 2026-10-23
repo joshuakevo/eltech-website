@@ -26,6 +26,15 @@
 
   document.getElementById("year").textContent = new Date().getFullYear();
 
+  // Anonymous visit counter for the admin "Visitors" page (no cookies, no IP stored)
+  try {
+    const visit = new FormData();
+    visit.append("p", location.pathname);
+    visit.append("r", document.referrer);
+    visit.append("u", new URLSearchParams(location.search).get("utm_source") || "");
+    if (navigator.sendBeacon) navigator.sendBeacon("academy/api/track.php", visit);
+  } catch (e) { /* counting must never break the page */ }
+
   // Christmas offer: shows itself only between these dates (Kampala time)
   const OFFER = { start: "2026-12-01T00:00:00+03:00", end: "2027-01-01T00:00:00+03:00", discount: 0.2 };
   const now = new Date();
