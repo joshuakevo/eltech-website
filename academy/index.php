@@ -47,6 +47,21 @@ if (!$user) {
         </div>
       </div>
     </section>
+
+    <section class="section-tight">
+      <div class="container">
+        <div class="row-head"><h2>6 practical courses</h2><span class="muted">Sign in to start any of them free</span></div>
+        <div class="course-strip">
+          <?php foreach (course_catalog() as $slug => $c): ?>
+            <div class="strip-item">
+              <img src="../assets/img/courses/<?= h($slug) ?>.svg" alt="" width="640" height="280" loading="lazy">
+              <strong><?= h($c['title']) ?></strong>
+              <span><?= h($c['level']) ?></span>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+    </section>
     <?php
     page_end(['scripts' => $clientId ? ['https://accounts.google.com/gsi/client'] : []]);
     exit;
@@ -56,21 +71,20 @@ if (!$user) {
 record_activity((int) $user['id']);
 $stats = student_stats((int) $user['id']);
 $firstName = explode(' ', trim($user['name']))[0];
+$prices = course_prices();
 
-$stmt = db()->prepare('SELECT course FROM academy_interest WHERE user_id = ?');
-$stmt->execute([$user['id']]);
-$interested = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-// Progress per live course, and the next lesson to continue with
+// Progress per course, and the next lesson to continue with
 $cards = [];
 $continue = null;
 foreach (course_catalog() as $slug => $info) {
-    $card = $info + ['slug' => $slug, 'done' => 0, 'total' => 0, 'next' => null];
+    $card = $info + ['slug' => $slug, 'done' => 0, 'total' => 0, 'minutes' => 0, 'free' => 0, 'next' => null, 'access' => false];
     if ($info['status'] === 'live') {
         $course = load_course($slug);
-        $progress = course_progress((int) $user['id'], $slug);
-        $states = lesson_states($course, $progress, has_access((int) $user['id'], $slug));
+        $card['access'] = has_access((int) $user['id'], $slug);
+        $states = lesson_states($course, course_progress((int) $user['id'], $slug), $card['access']);
         $card['total'] = count($course['lessons']);
+        $card['minutes'] = array_sum(array_column($course['lessons'], 'minutes'));
+        $card['free'] = $course['free_lessons'];
         $card['done'] = count(array_filter($states, fn ($s) => $s === 'done'));
         foreach ($course['lessons'] as $lesson) {
             if ($states[$lesson['slug']] === 'open') {
@@ -85,17 +99,22 @@ foreach (course_catalog() as $slug => $info) {
     $cards[] = $card;
 }
 
+// Courses in progress first, then the rest in catalogue order
+$inProgress = fn ($c) => $c['done'] > 0 && $c['done'] < $c['total'];
+usort($cards, fn ($a, $b) => $inProgress($b) <=> $inProgress($a));
+
 page_start('My learning', $user);
 ?>
 <section class="acad-welcome">
-  <div class="container">
-    <h1>Welcome back, <?= h($firstName) ?></h1>
-    <p class="lead"><?= $stats['lessons'] ? 'Keep going. Every lesson makes AI more useful for your work.' : 'Your AI journey starts here. Your first lesson takes about 10 minutes.' ?></p>
-
+  <div class="container welcome-grid">
+    <div>
+      <h1>Welcome back, <?= h($firstName) ?></h1>
+      <p class="lead"><?= $stats['lessons'] ? 'Keep going. Every lesson makes AI more useful for your work.' : 'Pick a course below. Your first lesson takes about 10 minutes.' ?></p>
+    </div>
     <ul class="stats">
       <li><i class="bi bi-star-fill" aria-hidden="true"></i><strong><?= $stats['points'] ?></strong><span>points</span></li>
-      <li><i class="bi bi-fire" aria-hidden="true"></i><strong><?= $stats['streak'] ?></strong><span>day streak</span></li>
-      <li><i class="bi bi-check2-circle" aria-hidden="true"></i><strong><?= $stats['lessons'] ?></strong><span>lessons done</span></li>
+      <li><i class="bi bi-fire" aria-hidden="true"></i><strong><?= $stats['streak'] ?></strong><span>streak</span></li>
+      <li><i class="bi bi-check2-circle" aria-hidden="true"></i><strong><?= $stats['lessons'] ?></strong><span>lessons</span></li>
       <li><i class="bi bi-award" aria-hidden="true"></i><strong><?= count(array_filter($stats['badges'], fn ($b) => $b['earned'])) ?></strong><span>badges</span></li>
     </ul>
   </div>
@@ -104,9 +123,12 @@ page_start('My learning', $user);
 <?php if ($continue): ?>
 <section class="container">
   <a class="continue-card" href="lesson.php?c=<?= h($continue['slug']) ?>&amp;l=<?= h($continue['next']['slug']) ?>">
-    <span class="continue-label">Continue where you left off</span>
-    <strong><?= h($continue['next']['title']) ?></strong>
-    <span><?= h($continue['title']) ?> &middot; <?= (int) $continue['next']['minutes'] ?> min</span>
+    <img src="../assets/img/courses/<?= h($continue['slug']) ?>.svg" alt="" width="640" height="280">
+    <span class="continue-text">
+      <span class="continue-label">Continue where you left off</span>
+      <strong><?= h($continue['next']['title']) ?></strong>
+      <span><?= h($continue['title']) ?> &middot; <?= (int) $continue['next']['minutes'] ?> min</span>
+    </span>
     <i class="bi bi-play-circle-fill" aria-hidden="true"></i>
   </a>
 </section>
@@ -114,30 +136,45 @@ page_start('My learning', $user);
 
 <section class="section-tight">
   <div class="container">
-    <h2>Courses</h2>
+    <div class="row-head">
+      <h2>Courses</h2>
+      <span class="muted">First lessons of every course are free</span>
+    </div>
     <div class="acad-courses">
-      <?php foreach ($cards as $card): ?>
-        <article class="acad-course<?= $card['status'] === 'live' ? '' : ' is-soon' ?>">
-          <div class="course-top">
-            <span class="course-icon"><i class="bi <?= h($card['icon']) ?>" aria-hidden="true"></i></span>
-            <span class="level"><?= $card['status'] === 'live' ? h($card['level']) : 'Coming soon' ?></span>
-          </div>
-          <h3><?= h($card['title']) ?></h3>
-          <p class="course-lead"><?= h($card['tagline']) ?></p>
-
-          <?php if ($card['status'] === 'live'): ?>
-            <?php $pct = $card['total'] ? round($card['done'] / $card['total'] * 100) : 0; ?>
-            <div class="progress" role="progressbar" aria-valuenow="<?= $pct ?>" aria-valuemin="0" aria-valuemax="100" aria-label="Course progress">
-              <span style="width: <?= $pct ?>%"></span>
-            </div>
-            <p class="progress-label"><?= $card['done'] ?> of <?= $card['total'] ?> lessons</p>
-            <a class="btn btn-primary" href="course.php?c=<?= h($card['slug']) ?>"><?= $card['done'] ? ($card['done'] === $card['total'] ? 'Review course' : 'Continue') : 'Start free' ?></a>
-          <?php elseif (in_array($card['slug'], $interested, true)): ?>
-            <p class="notify-done"><i class="bi bi-bell-fill" aria-hidden="true"></i> We will tell you when it opens</p>
-          <?php else: ?>
-            <button type="button" class="btn btn-outline" data-notify="<?= h($card['slug']) ?>">Notify me</button>
-          <?php endif; ?>
-        </article>
+      <?php foreach ($cards as $card):
+          $live = $card['status'] === 'live';
+          $pct = $card['total'] ? round($card['done'] / $card['total'] * 100) : 0;
+          $finished = $card['total'] && $card['done'] === $card['total']; ?>
+        <?php if ($live): ?><a class="acad-course" href="course.php?c=<?= h($card['slug']) ?>"><?php else: ?><div class="acad-course is-soon"><?php endif; ?>
+          <span class="course-cover">
+            <img src="../assets/img/courses/<?= h($card['slug']) ?>.svg" alt="" width="640" height="280" loading="lazy">
+            <span class="cover-level"><?= h($card['level']) ?></span>
+            <?php if ($finished): ?><span class="cover-done"><i class="bi bi-award-fill" aria-hidden="true"></i> Completed</span><?php endif; ?>
+          </span>
+          <span class="course-info">
+            <strong class="course-title"><?= h($card['title']) ?></strong>
+            <span class="course-tagline"><?= h($card['tagline']) ?></span>
+            <?php if ($live): ?>
+              <span class="course-meta">
+                <span><i class="bi bi-collection-play" aria-hidden="true"></i> <?= $card['total'] ?> lessons</span>
+                <span><i class="bi bi-clock" aria-hidden="true"></i> <?= round($card['minutes'] / 5) * 5 ?> min</span>
+              </span>
+              <?php if ($card['done']): ?>
+                <span class="progress" role="progressbar" aria-valuenow="<?= $pct ?>" aria-valuemin="0" aria-valuemax="100" aria-label="Course progress"><span style="width: <?= $pct ?>%"></span></span>
+              <?php endif; ?>
+              <span class="course-foot">
+                <span class="course-price-tag">
+                  <?php if ($card['access']): ?><i class="bi bi-unlock-fill" aria-hidden="true"></i> Full access
+                  <?php elseif ($card['done']): ?><?= $card['done'] ?> of <?= $card['total'] ?> done
+                  <?php else: ?><?= (int) $card['free'] ?> lessons free &middot; UGX <?= number_format($prices[$card['slug']]) ?><?php endif; ?>
+                </span>
+                <span class="course-cta"><?= $card['done'] ? ($finished ? 'Review' : 'Continue') : ($card['access'] ? 'Start' : 'Start free') ?> <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+              </span>
+            <?php else: ?>
+              <span class="course-foot"><span class="course-price-tag">Coming soon</span></span>
+            <?php endif; ?>
+          </span>
+        <?php if ($live): ?></a><?php else: ?></div><?php endif; ?>
       <?php endforeach; ?>
     </div>
   </div>
@@ -145,13 +182,12 @@ page_start('My learning', $user);
 
 <section class="section-tight">
   <div class="container">
-    <h2>Your badges</h2>
+    <div class="row-head"><h2>Your badges</h2></div>
     <ul class="badges">
       <?php foreach ($stats['badges'] as $badge): ?>
         <li class="<?= $badge['earned'] ? 'earned' : '' ?>">
           <i class="bi <?= h($badge['icon']) ?>" aria-hidden="true"></i>
-          <strong><?= h($badge['name']) ?></strong>
-          <span><?= $badge['earned'] ? 'Earned' : h($badge['hint']) ?></span>
+          <span><strong><?= h($badge['name']) ?></strong><?= $badge['earned'] ? 'Earned' : h($badge['hint']) ?></span>
         </li>
       <?php endforeach; ?>
     </ul>

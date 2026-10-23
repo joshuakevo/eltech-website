@@ -37,7 +37,7 @@ $whatsText = rawurlencode("Hello Eltech, I'd like to unlock the full course \"{$
 
 page_start($course['title'], $user);
 ?>
-<section class="acad-course-head">
+<section class="acad-course-head" style="--cover: url('../assets/img/courses/<?= h($course['slug']) ?>.svg')">
   <div class="container">
     <a class="back-link" href="index.php"><i class="bi bi-arrow-left" aria-hidden="true"></i> My learning</a>
     <div class="course-head-grid">
@@ -47,7 +47,7 @@ page_start($course['title'], $user);
         <p class="lead"><?= h($course['description']) ?></p>
         <?php if ($next): ?>
           <a class="btn btn-primary" href="lesson.php?c=<?= h($course['slug']) ?>&amp;l=<?= h($next['slug']) ?>">
-            <?= $done ? 'Continue: ' : 'Start: ' ?><?= h($next['title']) ?> <i class="bi bi-arrow-right" aria-hidden="true"></i>
+            <?= $done ? 'Continue: ' . h($next['title']) : 'Start lesson 1' ?> <i class="bi bi-arrow-right" aria-hidden="true"></i>
           </a>
         <?php endif; ?>
       </div>

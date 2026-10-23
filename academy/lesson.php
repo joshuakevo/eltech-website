@@ -88,7 +88,14 @@ page_start($lesson['title'], $user);
         <?php foreach ($lesson['quiz'] as $qi => $q): ?>
           <fieldset class="question" data-q="<?= $qi ?>">
             <legend><span><?= $qi + 1 ?>.</span> <?= h($q['q']) ?></legend>
-            <?php foreach ($q['options'] as $oi => $option): ?>
+            <?php
+            // Shuffle options per student (stable on reload); values keep the original index for marking
+            $order = array_keys($q['options']);
+            mt_srand(crc32($userId . '|' . $lesson['slug'] . '|' . $qi));
+            shuffle($order);
+            mt_srand();
+            foreach ($order as $oi):
+                $option = $q['options'][$oi]; ?>
               <label class="option">
                 <input type="radio" name="a[<?= $qi ?>]" value="<?= $oi ?>" required>
                 <span><?= h($option) ?></span>

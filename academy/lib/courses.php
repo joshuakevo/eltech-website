@@ -21,7 +21,7 @@ function course_catalog(): array
             'tagline' => 'Let AI handle the repetitive work.',
             'level' => 'Beginner to intermediate',
             'icon' => 'bi-gear-wide-connected',
-            'status' => 'soon',
+            'status' => 'live',
             'price' => 60000, // UGX, full course
         ],
         'data-analysis-with-ai' => [
@@ -29,7 +29,7 @@ function course_catalog(): array
             'tagline' => 'Turn your numbers into decisions.',
             'level' => 'Intermediate',
             'icon' => 'bi-graph-up-arrow',
-            'status' => 'soon',
+            'status' => 'live',
             'price' => 60000, // UGX, full course
         ],
         'ai-for-marketing' => [
@@ -37,7 +37,7 @@ function course_catalog(): array
             'tagline' => 'Create more, faster, in your own voice.',
             'level' => 'Beginner',
             'icon' => 'bi-megaphone',
-            'status' => 'soon',
+            'status' => 'live',
             'price' => 50000, // UGX, full course
         ],
         'ai-for-managers' => [
@@ -45,7 +45,7 @@ function course_catalog(): array
             'tagline' => 'Lead your team into AI, safely.',
             'level' => 'All levels',
             'icon' => 'bi-people',
-            'status' => 'soon',
+            'status' => 'live',
             'price' => 50000, // UGX, full course
         ],
         'build-apps-with-ai' => [
@@ -53,7 +53,7 @@ function course_catalog(): array
             'tagline' => 'Turn your idea into a working tool, without code.',
             'level' => 'Intermediate',
             'icon' => 'bi-phone',
-            'status' => 'soon',
+            'status' => 'live',
             'price' => 60000, // UGX, full course
         ],
     ];
